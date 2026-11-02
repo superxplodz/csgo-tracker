@@ -2,7 +2,8 @@ name: Update Steam prices
 
 on:
   schedule:
-    - cron: "47 23 * * *"   # 06:47 WIB every day
+    - cron: "47 23 * * *"     # 06:47 WIB: main daily update
+    - cron: "17 2-14/3 * * *" # 09:17 to 21:17 WIB every 3h: finishes any items Steam rate-limited
   workflow_dispatch: {}      # lets you run it by hand from the Actions tab
 
 permissions:

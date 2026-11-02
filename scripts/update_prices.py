@@ -12,7 +12,13 @@ from crypto_box import encrypt, decrypt
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data.enc")
 URL = "https://steamcommunity.com/market/priceoverview/?appid=730&currency=1&market_hash_name="
-DELAY = float(os.environ.get("STEAM_DELAY", "3.5"))  # seconds between calls; Steam rate-limits hard
+DELAY = float(os.environ.get("STEAM_DELAY", "6"))  # seconds between calls; Steam allows ~20/min per IP
+FRESH_HOURS = 20       # items priced within this window are skipped, so each run only does what's left
+MAX_429_STREAK = 3     # after this many rate-limits in a row, stop and save; the next run continues
+
+
+class RateLimited(Exception):
+    pass
 JAKARTA = timezone(timedelta(hours=7))
 
 
@@ -29,7 +35,7 @@ def money(s):
 def fetch(name):
     req = urllib.request.Request(URL + urllib.parse.quote(name, safe=""),
                                  headers={"User-Agent": "Mozilla/5.0 (cs2-skin-tracker)"})
-    for attempt in range(4):
+    for attempt in range(3):
         try:
             with urllib.request.urlopen(req, timeout=20) as r:
                 j = json.load(r)
@@ -43,10 +49,7 @@ def fetch(name):
                     "volume_24h": int(vol.replace(",", "")) if vol else None}
         except urllib.error.HTTPError as e:
             if e.code == 429:
-                wait = 60 * (attempt + 1)
-                print(f"  429 rate limit, waiting {wait}s", flush=True)
-                time.sleep(wait)
-                continue
+                raise RateLimited()
             if e.code >= 500:
                 time.sleep(10)
                 continue
@@ -63,21 +66,57 @@ def main():
         sys.exit("SITE_PASSWORD is not set")
     db = decrypt(open(DATA).read(), pw)
     old = {p["item"]: p for p in db.get("prices", [])}
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    prices, failed = [], []
-    for i, h in enumerate(db["holdings"]):
-        name = h["item"]
-        got = fetch(name)
+    now_dt = datetime.now(timezone.utc)
+    now = now_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    def fresh(p):
+        if not p or not (p.get("source") or "").startswith("Steam lowest"):
+            return False
+        try:
+            at = datetime.strptime(p["at"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
+        except Exception:
+            return False
+        return (now_dt - at).total_seconds() < FRESH_HOURS * 3600
+
+    todo = [h["item"] for h in db["holdings"] if not fresh(old.get(h["item"]))]
+    print(f"{len(todo)} of {len(db['holdings'])} items need a price", flush=True)
+    got_map, streak, stopped = {}, 0, False
+    for i, name in enumerate(todo):
+        try:
+            got = fetch(name)
+            streak = 0
+        except RateLimited:
+            streak += 1
+            print(f"[{i + 1}/{len(todo)}] {name}: rate limited ({streak} in a row)", flush=True)
+            if streak >= MAX_429_STREAK:
+                print("Steam is rate-limiting this server. Saving progress; the next run continues.", flush=True)
+                stopped = True
+                break
+            time.sleep(90)
+            continue
         if got:
-            prices.append({"item": name, **got, "source": "Steam lowest listing", "at": now})
+            got_map[name] = got
+        print(f"[{i + 1}/{len(todo)}] {name}: {got['price'] if got else 'no price'}", flush=True)
+        time.sleep(DELAY)
+
+    today = datetime.now(JAKARTA).strftime("%Y-%m-%d")
+    if not got_map and any(r["day"] == today for r in db.get("history", [])):
+        print("Nothing new to save. Password OK, data unchanged.")
+        return
+
+    prices, failed = [], []
+    for h in db["holdings"]:
+        name = h["item"]
+        if name in got_map:
+            prices.append({"item": name, **got_map[name], "source": "Steam lowest listing", "at": now})
+        elif fresh(old.get(name)):
+            prices.append(old[name])
         else:
             prev = old.get(name, {})
             failed.append(name)
             prices.append({"item": name, "price": prev.get("price", 0), "median": prev.get("median"),
-                           "volume_24h": None, "source": "Previous price (Steam fetch failed)",
+                           "volume_24h": prev.get("volume_24h"), "source": "Previous price (Steam fetch failed)",
                            "at": prev.get("at", now)})
-        print(f"[{i + 1}/{len(db['holdings'])}] {name}: {prices[-1]['price']}", flush=True)
-        time.sleep(DELAY)
 
     pmap = {p["item"]: p["price"] for p in prices}
     value = round(sum(h["qty"] * pmap[h["item"]] for h in db["holdings"]), 2)
@@ -92,9 +131,8 @@ def main():
     print(f"Done. Value ${value:,.2f}, cost ${cost:,.2f}. Failed: {len(failed)}")
     for f in failed:
         print("  failed:", f)
-    # Fail the run if Steam blocked almost everything, so you get an email from GitHub.
-    if len(failed) > len(prices) * 0.5:
-        sys.exit("More than half of the price checks failed")
+    if stopped:
+        print(f"Stopped early: {len(failed)} items still waiting for a fresh price.")
 
 
 if __name__ == "__main__":
