@@ -4,145 +4,349 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="dark light">
 <title>CS2 skin portfolio</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23f5a524'/%3E%3Cpath d='M9 21l5-10 4 7 3-4 3 7' fill='none' stroke='%23111' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
+  /* ---------- Design tokens ---------- */
   :root {
-    --bg: #0f1216; --panel: #171b21; --line: #262c35; --fg: #e8ebef; --muted: #8a94a3;
-    --accent: #f5a524; --ok: #3fbf7f; --bad: #ef5d5d; --warn: #f0b429;
-    --r: 10px; --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    /* Type scale (1.25 ratio) */
+    --fs-xs: 0.75rem; --fs-sm: 0.875rem; --fs-md: 1rem; --fs-lg: 1.25rem; --fs-xl: 1.75rem; --fs-2xl: 2.5rem; --fs-3xl: clamp(2.25rem, 6vw, 3.5rem);
+    /* Spacing scale (4px base) */
+    --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px;
+    /* Radii */
+    --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-pill: 999px;
+    --container: 1200px;
+    --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+
+    /* Semantic colors: dark (default) */
+    --bg: #0c0e12;
+    --bg-glow: rgba(245, 165, 36, 0.08);
+    --surface: #14171d;
+    --surface-2: #1b1f27;
+    --border: #252a33;
+    --text: #edf0f4;
+    --text-muted: #8b95a5;
+    --text-subtle: #5f6876;
+    --accent: #f5a524;
+    --accent-soft: rgba(245, 165, 36, 0.14);
+    --on-accent: #16120a;
+    --positive: #3ecf8e;
+    --positive-soft: rgba(62, 207, 142, 0.12);
+    --negative: #f26b6b;
+    --negative-soft: rgba(242, 107, 107, 0.12);
+    --warning: #f0b429;
+    --focus: #7cb7ff;
+    --grid: #20252d;
+    --shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 8px 24px rgba(0,0,0,0.25);
   }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f6f7f9;
+      --bg-glow: rgba(245, 165, 36, 0.12);
+      --surface: #ffffff;
+      --surface-2: #f1f3f6;
+      --border: #e3e6eb;
+      --text: #14171c;
+      --text-muted: #5b6575;
+      --text-subtle: #8a93a2;
+      --accent: #d98a00;
+      --accent-soft: rgba(217, 138, 0, 0.12);
+      --on-accent: #ffffff;
+      --positive: #12936a;
+      --positive-soft: rgba(18, 147, 106, 0.1);
+      --negative: #d23f3f;
+      --negative-soft: rgba(210, 63, 63, 0.1);
+      --warning: #b7791f;
+      --focus: #2563eb;
+      --grid: #eceef2;
+      --shadow: 0 1px 2px rgba(16,24,40,0.04), 0 8px 24px rgba(16,24,40,0.06);
+    }
+  }
+
+  /* ---------- Base ---------- */
   * { box-sizing: border-box; }
-  html, body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); }
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 24px 16px 64px; display: flex; flex-direction: column; gap: 20px; }
-  h1 { font-size: 26px; font-weight: 600; margin: 0; }
-  h2 { font-size: 16px; font-weight: 600; margin: 0; }
-  .muted { color: var(--muted); }
-  .small { font-size: 13px; }
-  .num { font-variant-numeric: tabular-nums; }
-  .pos { color: var(--ok); } .neg { color: var(--bad); } .warn { color: var(--warn); }
-  .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
-  .take { margin: 6px 0 0; color: var(--muted); }
-  .take b { color: var(--fg); } .take b.pos { color: var(--ok); } .take b.neg { color: var(--bad); }
-  button, input { font: inherit; }
-  .btn { background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 13px; }
-  .btn:hover { color: var(--fg); }
-  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
-  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; min-width: 0; }
-  .tile .lab { font-size: 13px; color: var(--muted); }
-  .tile .big { font-size: 26px; margin: 6px 0 2px; font-variant-numeric: tabular-nums; }
-  .tile .sub { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 12px; }
-  .chart { position: relative; margin-top: 10px; }
-  .tip { position: absolute; pointer-events: none; background: #20262e; border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font-size: 12px; white-space: nowrap; box-shadow: 0 6px 20px rgba(0,0,0,.4); }
-  .tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
-  .search { flex: 1 1 200px; max-width: 320px; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; }
-  .chip { background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 5px 10px; font-size: 12px; cursor: pointer; }
-  .chip[aria-pressed="true"] { color: var(--fg); border-color: var(--accent); }
-  .scroll { max-height: 560px; overflow: auto; border-top: 1px solid var(--line); }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
-  th { position: sticky; top: 0; background: var(--panel); color: var(--muted); font-weight: 500; text-align: right; padding: 8px; border-bottom: 1px solid var(--line); white-space: nowrap; cursor: pointer; user-select: none; }
-  th.l, td.l { text-align: left; }
-  th[aria-sort="ascending"]::after { content: " ↑"; } th[aria-sort="descending"]::after { content: " ↓"; }
-  td { padding: 7px 8px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
-  td.l { white-space: normal; min-width: 200px; }
-  tr:hover td { background: rgba(255,255,255,.02); }
-  a.item { color: inherit; text-decoration: none; } a.item:hover { color: var(--accent); }
-  @media (max-width: 640px) { .hide-s { display: none; } h1 { font-size: 22px; } .tile .big { font-size: 22px; } }
-  /* lock screen */
-  .lock { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
-  .lock .card { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 12px; }
-  .lock input[type=password] { background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
-  .lock .go { background: var(--accent); color: #111; border: 0; border-radius: 8px; padding: 10px; font-weight: 600; cursor: pointer; }
-  .lock label { font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; font-family: var(--font); font-size: var(--fs-md); line-height: 1.5; color: var(--text);
+    background: radial-gradient(1200px 500px at 15% -10%, var(--bg-glow), transparent 60%), var(--bg);
+    background-attachment: fixed; min-height: 100vh;
+  }
+  button, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r-sm); }
   [hidden] { display: none !important; }
+  .num { font-variant-numeric: tabular-nums; }
+  .pos { color: var(--positive); } .neg { color: var(--negative); } .warn { color: var(--warning); } .muted { color: var(--text-muted); }
+
+  .container { max-width: var(--container); margin: 0 auto; padding: 0 var(--s-4); }
+  @media (min-width: 768px) { .container { padding: 0 var(--s-6); } }
+
+  /* ---------- Buttons & chips ---------- */
+  .btn { display: inline-flex; align-items: center; gap: var(--s-2); border: 1px solid var(--border); background: var(--surface); color: var(--text-muted);
+    border-radius: var(--r-pill); padding: var(--s-2) var(--s-4); font-size: var(--fs-sm); cursor: pointer; transition: color .15s, border-color .15s, background .15s; }
+  .btn:hover { color: var(--text); border-color: var(--text-subtle); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; border-radius: var(--r-md); justify-content: center; padding: var(--s-3) var(--s-4); }
+  .btn-primary:hover { filter: brightness(1.06); color: var(--on-accent); border-color: var(--accent); }
+  .btn-primary:disabled { opacity: .6; cursor: default; }
+  .badge { display: inline-flex; align-items: center; gap: var(--s-1); padding: 2px var(--s-3); border-radius: var(--r-pill); font-size: var(--fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .badge.pos { background: var(--positive-soft); } .badge.neg { background: var(--negative-soft); } .badge.flat { background: var(--surface-2); color: var(--text-muted); font-weight: 500; }
+  .chip { border: 1px solid var(--border); background: transparent; color: var(--text-muted); border-radius: var(--r-pill); padding: 6px var(--s-3); font-size: var(--fs-xs); cursor: pointer; white-space: nowrap; transition: all .15s; }
+  .chip:hover { color: var(--text); }
+  .chip[aria-pressed="true"] { color: var(--text); background: var(--accent-soft); border-color: var(--accent); }
+
+  /* ---------- Lock screen ---------- */
+  .lock { min-height: 100vh; display: grid; place-items: center; padding: var(--s-4); }
+  .lock-card { width: 100%; max-width: 380px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--s-6); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: var(--s-4); }
+  .logo { width: 44px; height: 44px; border-radius: var(--r-md); background: var(--accent); display: grid; place-items: center; }
+  .lock h1 { font-size: var(--fs-xl); margin: 0; letter-spacing: -0.01em; }
+  .lock p { margin: 0; }
+  .field { display: flex; flex-direction: column; gap: var(--s-2); }
+  .field label { font-size: var(--fs-sm); color: var(--text-muted); }
+  .input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--s-3) var(--s-4); font-size: var(--fs-md); transition: border-color .15s; }
+  .input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+  .check { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-sm); color: var(--text-muted); }
+  .check input { width: 16px; height: 16px; accent-color: var(--accent); }
+  .msg { font-size: var(--fs-sm); margin: 0; }
+
+  /* ---------- App ---------- */
+  .topbar { position: sticky; top: 0; z-index: 10; backdrop-filter: saturate(140%) blur(10px); -webkit-backdrop-filter: saturate(140%) blur(10px);
+    background: color-mix(in srgb, var(--bg) 78%, transparent); border-bottom: 1px solid var(--border); }
+  .topbar .container { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); height: 60px; }
+  .brand { display: flex; align-items: center; gap: var(--s-3); font-weight: 600; }
+  .brand .logo { width: 30px; height: 30px; border-radius: var(--r-sm); }
+  .topbar-right { display: flex; align-items: center; gap: var(--s-3); }
+  .updated { font-size: var(--fs-xs); color: var(--text-muted); }
+  @media (max-width: 560px) { .updated { display: none; } }
+
+  main { padding: var(--s-6) 0 var(--s-8); display: flex; flex-direction: column; gap: var(--s-5); }
+
+  .hero { display: flex; flex-direction: column; gap: var(--s-2); padding: var(--s-2) 0 var(--s-3); }
+  .eyebrow { font-size: var(--fs-sm); color: var(--text-muted); font-weight: 500; }
+  .hero-value { font-size: var(--fs-3xl); font-weight: 700; letter-spacing: -0.03em; line-height: 1.05; font-variant-numeric: tabular-nums; margin: 0; }
+  .hero-badges { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
+  .hero-note { font-size: var(--fs-sm); color: var(--text-muted); margin: var(--s-1) 0 0; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: var(--s-5); box-shadow: var(--shadow); min-width: 0; }
+  .card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s-3); flex-wrap: wrap; margin-bottom: var(--s-4); }
+  .card-title { font-size: var(--fs-lg); font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+  .card-sub { font-size: var(--fs-sm); color: var(--text-muted); margin: 2px 0 0; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: var(--s-4); }
+  .kpi { padding: var(--s-4) var(--s-5); display: flex; flex-direction: column; gap: var(--s-1); }
+  .kpi-label { font-size: var(--fs-sm); color: var(--text-muted); }
+  .kpi-value { font-size: var(--fs-xl); font-weight: 650; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .kpi-hint { font-size: var(--fs-xs); color: var(--text-subtle); }
+
+  .grid-main { display: grid; grid-template-columns: 1fr; gap: var(--s-4); }
+  @media (min-width: 960px) { .grid-main { grid-template-columns: 3fr 2fr; } }
+  .chart { position: relative; }
+  .chart svg { display: block; overflow: visible; }
+  .chart text { fill: var(--text-muted); font-size: 11px; font-family: var(--font); }
+  .chart .t-strong { fill: var(--text); }
+  .chart .grid { stroke: var(--grid); }
+  .chart .l-value { stroke: var(--accent); }
+  .chart .l-cost { stroke: var(--text-subtle); }
+  .chart .area { fill: url(#areaFill); }
+  .chart .dot-value { fill: var(--accent); } .chart .dot-cost { fill: var(--text-subtle); }
+  .chart .bar { fill: var(--accent); }
+  .chart .t-pos { fill: var(--positive); } .chart .t-neg { fill: var(--negative); } .chart .t-acc { fill: var(--accent); }
+  .tip { position: absolute; pointer-events: none; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--s-2) var(--s-3);
+    font-size: var(--fs-xs); white-space: nowrap; box-shadow: var(--shadow); font-variant-numeric: tabular-nums; }
+  .legend { display: flex; gap: var(--s-4); font-size: var(--fs-xs); color: var(--text-muted); }
+  .legend span::before { content: ""; display: inline-block; width: 12px; height: 2px; margin-right: 6px; vertical-align: middle; background: var(--accent); }
+  .legend span.cost::before { background: none; border-top: 2px dashed var(--text-subtle); }
+
+  /* Movers */
+  .movers { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: var(--s-4); }
+  .mover-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .mover-list li { display: flex; justify-content: space-between; gap: var(--s-3); padding: var(--s-3) 0; border-top: 1px solid var(--border); align-items: baseline; }
+  .mover-list li:first-child { border-top: 0; }
+  .mover-name { font-size: var(--fs-sm); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mover-val { font-size: var(--fs-sm); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* Tables */
+  .tools { display: flex; gap: var(--s-2); flex-wrap: wrap; align-items: center; margin-bottom: var(--s-4); }
+  .search { flex: 1 1 220px; max-width: 340px; position: relative; }
+  .search .input { padding-left: 36px; font-size: var(--fs-sm); padding-top: var(--s-2); padding-bottom: var(--s-2); }
+  .search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); stroke: var(--text-subtle); }
+  .chips { display: flex; gap: var(--s-2); overflow-x: auto; scrollbar-width: none; padding: 2px; }
+  .chips::-webkit-scrollbar { display: none; }
+  .table-wrap { max-height: 620px; overflow: auto; border: 1px solid var(--border); border-radius: var(--r-md); }
+  table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
+  thead th { position: sticky; top: 0; z-index: 1; background: var(--surface-2); color: var(--text-muted); font-weight: 500; font-size: var(--fs-xs);
+    text-transform: uppercase; letter-spacing: .04em; text-align: right; padding: 0; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  thead th > * { display: block; width: 100%; padding: var(--s-3); text-align: inherit; }
+  thead th button { background: none; border: 0; cursor: pointer; color: inherit; font: inherit; text-transform: inherit; letter-spacing: inherit; }
+  thead th button:hover { color: var(--text); }
+  th[aria-sort="ascending"] button::after { content: " ↑"; color: var(--accent); }
+  th[aria-sort="descending"] button::after { content: " ↓"; color: var(--accent); }
+  th.l, td.l { text-align: left; }
+  tbody td { padding: var(--s-3); text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: 0; }
+  tbody tr:hover td { background: var(--surface-2); }
+  td.l { white-space: normal; min-width: 220px; }
+  a.item { color: inherit; text-decoration: none; font-weight: 500; }
+  a.item:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  .cat { display: block; font-size: var(--fs-xs); color: var(--text-subtle); font-weight: 400; margin-top: 2px; }
+  .show-s { display: none !important; }
+  .empty { padding: var(--s-6); text-align: center; color: var(--text-muted); font-size: var(--fs-sm); }
+
+  /* Phone: rows become cards, nothing scrolls sideways */
+  @media (max-width: 700px) {
+    .card { padding: var(--s-4); }
+    .table-wrap { max-height: none; border: 0; overflow: visible; }
+    .stack thead { display: none; }
+    .stack, .stack tbody { display: block; }
+    .stack tbody tr { display: grid; grid-template-columns: 1fr auto; gap: 2px var(--s-3); padding: var(--s-3) 0; border-bottom: 1px solid var(--border); }
+    .stack tbody tr:hover td { background: none; }
+    .stack tbody td { padding: 0; border: 0; text-align: left; white-space: normal; min-width: 0; }
+    .stack td[data-label]::before { content: attr(data-label) " "; color: var(--text-subtle); font-size: var(--fs-xs); }
+    .stack td.l { grid-column: 1 / -1; }
+    .stack td.r { text-align: right; }
+    .stack td.hide-s { display: none; }
+    .show-s { display: block !important; }
+  }
+
+  footer { color: var(--text-subtle); font-size: var(--fs-xs); padding: var(--s-2) 0; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .fade { animation: fade .4s ease-out both; }
+    @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  }
 </style>
 </head>
 <body>
 
+<!-- ============ Lock screen ============ -->
 <div class="lock" id="lock">
-  <form class="card" id="lockForm" autocomplete="on">
-    <h1>CS2 skin portfolio</h1>
-    <p class="muted small" style="margin:0">Private. Enter the password to view.</p>
+  <form class="lock-card fade" id="lockForm" autocomplete="on">
+    <div class="logo" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 32 32"><path d="M7 22l6-12 5 8 3.5-5 4 9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="color:var(--on-accent)"/></svg>
+    </div>
+    <div>
+      <h1>CS2 skin portfolio</h1>
+      <p class="muted" style="font-size:var(--fs-sm)">Private dashboard. Enter your password to continue.</p>
+    </div>
     <input type="text" name="username" value="portfolio" autocomplete="username" hidden>
-    <input type="password" id="pw" placeholder="Password" autocomplete="current-password" required autofocus>
-    <label><input type="checkbox" id="remember" checked> Remember on this device</label>
-    <button class="go" type="submit" id="goBtn">Unlock</button>
-    <p class="small neg" id="err" style="margin:0" hidden>Wrong password.</p>
-    <p class="small warn" id="insecure" style="margin:0" hidden>This page must be opened over https to unlock. Use https://skins.bekasibro.my.id</p>
+    <div class="field">
+      <label for="pw">Password</label>
+      <input class="input" type="password" id="pw" autocomplete="current-password" required autofocus>
+    </div>
+    <label class="check"><input type="checkbox" id="remember" checked> Remember on this device</label>
+    <button class="btn btn-primary" type="submit" id="goBtn">Unlock</button>
+    <p class="msg neg" id="err" hidden>That password didn't work. Try again.</p>
+    <p class="msg warn" id="insecure" hidden>Open this page over https to unlock: https://skins.bekasibro.my.id</p>
   </form>
 </div>
 
-<div class="wrap" id="app" hidden>
-  <div class="top">
-    <div>
-      <h1>CS2 skin portfolio</h1>
-      <p class="take" id="take"></p>
+<!-- ============ App ============ -->
+<div id="app" hidden>
+  <header class="topbar">
+    <div class="container">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 32 32"><path d="M7 22l6-12 5 8 3.5-5 4 9" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="stroke:var(--on-accent)"/></svg>
+        </div>
+        <span>CS2 portfolio</span>
+      </div>
+      <div class="topbar-right">
+        <span class="updated" id="updated"></span>
+        <button class="btn" id="logout" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          Lock
+        </button>
+      </div>
     </div>
-    <button class="btn" id="logout">Lock</button>
-  </div>
+  </header>
 
-  <div class="tiles">
-    <div class="card tile"><div class="lab">Market value</div><div class="big" id="kValue"></div><div class="sub">Steam lowest listing × qty</div></div>
-    <div class="card tile"><div class="lab">Change since last update</div><div class="big" id="kChange"></div><div class="sub" id="kChangePct"></div></div>
-    <div class="card tile"><div class="lab">Unrealized profit</div><div class="big" id="kPnl"></div><div class="sub" id="kPnlPct"></div></div>
-    <div class="card tile"><div class="lab">Cost basis</div><div class="big" id="kCost"></div><div class="sub">What you paid for current holdings</div></div>
-    <div class="card tile"><div class="lab">If sold on Steam</div><div class="big" id="kAfter"></div><div class="sub">After Steam's ~13% seller fee</div></div>
-    <div class="card tile"><div class="lab">Realized profit</div><div class="big" id="kReal"></div><div class="sub">From past sales, after fees</div></div>
-  </div>
+  <main class="container">
+    <section class="hero fade" aria-label="Portfolio value">
+      <span class="eyebrow">Market value on Steam</span>
+      <h1 class="hero-value" id="hValue">—</h1>
+      <div class="hero-badges">
+        <span class="badge" id="hPnl"></span>
+        <span class="badge" id="hChange"></span>
+      </div>
+      <p class="hero-note" id="hNote"></p>
+    </section>
 
-  <div class="grid2">
-    <div class="card">
-      <h2>Portfolio value over time</h2>
-      <div class="muted small">Market value vs cost basis, one point per daily update.</div>
-      <div class="chart" id="trend"></div>
-      <div class="muted small" id="trendNote" hidden>The line builds as daily updates come in.</div>
-    </div>
-    <div class="card">
-      <h2>Value by category</h2>
-      <div class="muted small">Today's market value, with profit or loss vs cost.</div>
-      <div class="chart" id="cats"></div>
-    </div>
-  </div>
+    <section class="kpis fade" aria-label="Key figures">
+      <div class="card kpi"><span class="kpi-label">Cost basis</span><span class="kpi-value" id="kCost">—</span><span class="kpi-hint">What you paid for current holdings</span></div>
+      <div class="card kpi"><span class="kpi-label">If sold on Steam</span><span class="kpi-value" id="kAfter">—</span><span class="kpi-hint">After Steam's ~13% seller fee</span></div>
+      <div class="card kpi"><span class="kpi-label">Realized profit</span><span class="kpi-value" id="kReal">—</span><span class="kpi-hint">From past sales, after fees</span></div>
+      <div class="card kpi"><span class="kpi-label">Items held</span><span class="kpi-value" id="kUnits">—</span><span class="kpi-hint" id="kUnique"></span></div>
+    </section>
 
-  <div class="card">
-    <h2>Holdings</h2>
-    <div class="muted small">Priced at the lowest Steam listing. <span class="warn">Orange</span> prices are from an earlier day because Steam didn't answer.</div>
-    <div class="tools">
-      <input class="search" id="q" type="search" placeholder="Search items">
-      <span id="chips"></span>
-    </div>
-    <div class="scroll">
-      <table id="posTable">
-        <thead><tr>
-          <th class="l" data-k="item">Item</th>
-          <th class="hide-s" data-k="qty">Qty</th>
-          <th class="hide-s" data-k="avg_buy">Avg buy</th>
-          <th data-k="price">Price</th>
-          <th data-k="value" aria-sort="descending">Value</th>
-          <th data-k="pnl">Profit</th>
-          <th class="hide-s" data-k="pnl_pct">Profit %</th>
-          <th class="hide-s" data-k="volume_24h">Sold 24h</th>
-        </tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
+    <section class="grid-main">
+      <div class="card fade">
+        <div class="card-head">
+          <div><h2 class="card-title">Value over time</h2><p class="card-sub">One point per daily price update</p></div>
+          <div class="legend"><span>Market value</span><span class="cost">Cost basis</span></div>
+        </div>
+        <div class="chart" id="trend"></div>
+        <p class="card-sub" id="trendNote" hidden>The line fills in as daily updates come in.</p>
+      </div>
+      <div class="card fade">
+        <div class="card-head"><div><h2 class="card-title">By category</h2><p class="card-sub">Value today, and profit vs cost</p></div></div>
+        <div class="chart" id="cats"></div>
+      </div>
+    </section>
 
-  <div class="card">
-    <h2>Sales history</h2>
-    <div class="muted small">Profit is after the fee you logged on each sale.</div>
-    <div class="scroll" style="margin-top:12px">
-      <table id="salesTable">
-        <thead><tr>
-          <th class="l">Sold</th><th class="l">Item</th><th>Qty</th>
-          <th class="hide-s">Buy</th><th class="hide-s">Sale</th><th class="hide-s">Fee</th><th>Profit</th>
-        </tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
+    <section class="movers">
+      <div class="card fade">
+        <div class="card-head"><div><h2 class="card-title">Top gainers</h2><p class="card-sub">Biggest profit vs what you paid</p></div></div>
+        <ul class="mover-list" id="gainers"></ul>
+      </div>
+      <div class="card fade">
+        <div class="card-head"><div><h2 class="card-title">Top losers</h2><p class="card-sub">Biggest loss vs what you paid</p></div></div>
+        <ul class="mover-list" id="losers"></ul>
+      </div>
+    </section>
 
-  <div class="muted small" id="footer"></div>
+    <section class="card fade" id="holdings">
+      <div class="card-head">
+        <div><h2 class="card-title">Holdings</h2><p class="card-sub">Lowest Steam listing. <span class="warn">Orange</span> prices are from an earlier day.</p></div>
+      </div>
+      <div class="tools">
+        <div class="search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+          <input class="input" id="q" type="search" placeholder="Search items" aria-label="Search holdings">
+        </div>
+        <div class="chips" id="chips" role="group" aria-label="Filter by category"></div>
+      </div>
+      <div class="table-wrap">
+        <table class="stack" id="posTable">
+          <thead><tr>
+            <th class="l" data-k="item"><button type="button">Item</button></th>
+            <th data-k="qty"><button type="button">Qty</button></th>
+            <th data-k="avg_buy"><button type="button">Avg buy</button></th>
+            <th data-k="price"><button type="button">Price</button></th>
+            <th data-k="value" aria-sort="descending"><button type="button">Value</button></th>
+            <th data-k="pnl"><button type="button">Profit</button></th>
+            <th data-k="pnl_pct"><button type="button">Profit %</button></th>
+            <th data-k="volume_24h"><button type="button">Sold 24h</button></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card fade">
+      <div class="card-head"><div><h2 class="card-title">Sales history</h2><p class="card-sub">Profit is after the fee you logged on each sale</p></div></div>
+      <div class="table-wrap">
+        <table class="stack" id="salesTable">
+          <thead><tr>
+            <th class="l"><span>Sold</span></th><th class="l"><span>Item</span></th><th><span>Qty</span></th>
+            <th><span>Buy</span></th><th><span>Sale</span></th><th><span>Fee</span></th><th><span>Profit</span></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer id="footer"></footer>
+  </main>
 </div>
 
 <script>
@@ -161,23 +365,23 @@
 
   async function unlock(password, remember) {
     const res = await fetch('data.enc?t=' + Date.now(), { cache: 'no-store' });
-    const env = await res.json();
-    const db = await decrypt(env, password);
+    const db = await decrypt(await res.json(), password);
     try { if (remember) localStorage.setItem(KEY, password); } catch (e) {}
     $('lock').hidden = true; $('app').hidden = false;
     render(db);
   }
 
-  const secure = !!(window.isSecureContext && crypto && crypto.subtle);
+  const secure = !!(window.isSecureContext && window.crypto && crypto.subtle);
   if (!secure) { $('insecure').hidden = false; $('goBtn').disabled = true; }
   $('lockForm').addEventListener('submit', async (e) => {
-    e.preventDefault(); if (!secure) return; $('err').hidden = true; $('goBtn').disabled = true; $('goBtn').textContent = 'Unlocking…';
+    e.preventDefault(); if (!secure) return;
+    $('err').hidden = true; $('goBtn').disabled = true; $('goBtn').textContent = 'Unlocking…';
     try { await unlock($('pw').value, $('remember').checked); }
-    catch (err) { $('err').hidden = false; }
+    catch (err) { $('err').hidden = false; $('pw').select(); }
     finally { $('goBtn').disabled = false; $('goBtn').textContent = 'Unlock'; }
   });
   $('logout').addEventListener('click', () => { try { localStorage.removeItem(KEY); } catch (e) {} location.reload(); });
-  try { const saved = localStorage.getItem(KEY); if (saved) unlock(saved, true).catch(() => localStorage.removeItem(KEY)); } catch (e) {}
+  try { const saved = localStorage.getItem(KEY); if (saved && secure) unlock(saved, true).catch(() => localStorage.removeItem(KEY)); } catch (e) {}
 
   // ---------- formatting ----------
   const nf2 = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -185,12 +389,12 @@
   const usd = (v) => '$' + nf2.format(v);
   const susd = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + '$' + nf2.format(Math.abs(v));
   const spct = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + (Math.abs(v) * 100).toFixed(1) + '%';
-  const tone = (el, v) => { el.classList.remove('pos', 'neg'); if (v != null) el.classList.add(v >= 0 ? 'pos' : 'neg'); };
-  const set = (id, text, v) => { const el = $(id); el.textContent = text; if (v !== undefined) tone(el, v); };
+  const toneCls = (v) => (v > 0 ? 'pos' : v < 0 ? 'neg' : 'flat');
   const fmtDay = (d) => new Date(d + 'T00:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
   const steamUrl = (n) => 'https://steamcommunity.com/market/listings/730/' + encodeURIComponent(n);
   const NS = 'http://www.w3.org/2000/svg';
   const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+  const txt = (tag, text, cls) => { const e = document.createElement(tag); e.textContent = text; if (cls) e.className = cls; return e; };
 
   function render(db) {
     const pmap = new Map(db.prices.map((p) => [p.item, p]));
@@ -206,24 +410,32 @@
     const hist = [...db.history].sort((a, b) => (a.day < b.day ? -1 : 1));
     const last = hist[hist.length - 1], prev = hist[hist.length - 2];
 
-    const take = $('take'); take.replaceChildren();
-    const b = (t, cls) => { const e = document.createElement('b'); e.textContent = t; if (cls) e.className = cls; return e; };
-    take.append('Your ', b(nf0.format(units)), ' items are worth ', b(usd(value)), ' on the Steam Market. That is ',
-      b(susd(value - cost), value - cost >= 0 ? 'pos' : 'neg'), ' against what you paid.');
+    // Hero
+    $('hValue').textContent = usd(value);
+    const pnl = value - cost;
+    const hp = $('hPnl'); hp.className = 'badge ' + toneCls(pnl); hp.textContent = susd(pnl) + ' (' + spct(cost ? pnl / cost : 0) + ') all time';
+    const hc = $('hChange');
+    if (last && prev) { const ch = last.value - prev.value; hc.className = 'badge ' + toneCls(ch); hc.textContent = susd(ch) + ' (' + spct(ch / prev.value) + ') since ' + fmtDay(prev.day).replace(/, \d{4}$/, ''); }
+    else { hc.className = 'badge flat'; hc.textContent = 'Daily change shows after the next update'; }
+    $('hNote').textContent = `Based on the lowest Steam listing for each of your ${nf0.format(pos.length)} items.`;
 
-    set('kValue', usd(value)); set('kCost', usd(cost)); set('kAfter', usd(value / 1.15));
-    set('kPnl', susd(value - cost), value - cost); set('kPnlPct', cost ? spct((value - cost) / cost) : '', value - cost);
-    set('kReal', susd(realized), realized);
-    if (last && prev) { const ch = last.value - prev.value; set('kChange', susd(ch), ch); set('kChangePct', spct(ch / prev.value) + ' vs ' + fmtDay(prev.day), ch); }
-    else { set('kChange', '—'); set('kChangePct', 'Needs two daily updates'); }
+    // KPIs
+    $('kCost').textContent = usd(cost);
+    $('kAfter').textContent = usd(value / 1.15);
+    const kr = $('kReal'); kr.textContent = susd(realized); kr.className = 'kpi-value ' + toneCls(realized);
+    $('kUnits').textContent = nf0.format(units);
+    $('kUnique').textContent = nf0.format(pos.length) + ' different items';
+
+    const upd = db.updated_at ? new Date(db.updated_at) : null;
+    const updText = upd ? upd.toLocaleString('en-GB', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' WIB' : '—';
+    $('updated').textContent = 'Prices updated ' + updText;
+    $('footer').textContent = 'Prices from the Steam Community Market, updated daily. Last update ' + updText + '.';
 
     const draw = () => { drawTrend(hist); drawCats(pos); };
     draw(); let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(draw, 150); });
+    drawMovers(pos);
     setupTable(pos);
     drawSales(db.sales);
-    const upd = db.updated_at ? new Date(db.updated_at) : null;
-    $('footer').textContent = 'Prices last updated ' + (upd ? upd.toLocaleString('en-GB', { timeZone: 'Asia/Jakarta', dateStyle: 'medium', timeStyle: 'short' }) + ' WIB' : '—') +
-      '. Source: Steam Community Market. Updates daily at 06:47 WIB.';
   }
 
   function drawTrend(hist) {
@@ -231,47 +443,53 @@
     $('trendNote').hidden = hist.length >= 3;
     if (!hist.length) return;
     const rows = hist.map((r) => ({ day: r.day, t: Date.parse(r.day + 'T00:00:00Z'), value: Number(r.value), cost: Number(r.cost) }));
-    const W = Math.max(300, el.clientWidth), H = 240, B = 24, T = 10, L = 56, R = W - 80;
-    const svg = svgEl('svg', { width: '100%', viewBox: `0 0 ${W} ${H}` }, el);
+    const W = Math.max(300, el.clientWidth), H = 260, B = 26, T = 12, R = W - 8;
     let lo = Math.min(...rows.map((r) => Math.min(r.value, r.cost))) * 0.85, hi = Math.max(...rows.map((r) => Math.max(r.value, r.cost))) * 1.08;
-    const step = Math.pow(10, Math.floor(Math.log10((hi - lo) / 4))) * 5 || 1;
+    const raw = (hi - lo) / 4, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw) || raw;
     lo = Math.max(0, Math.floor(lo / step) * step); hi = Math.ceil(hi / step) * step;
+    const ticks = []; for (let v = lo; v <= hi + 1e-9; v += step) ticks.push(v);
+    const svg = svgEl('svg', { width: '100%', viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Portfolio value over time' }, el);
+    let L = 0;
+    ticks.forEach((v) => { const t = svgEl('text', {}, svg); t.textContent = '$' + nf0.format(v); L = Math.max(L, t.getComputedTextLength()); t.remove(); });
+    L += 12;
     let t0 = rows[0].t, t1 = rows[rows.length - 1].t; if (t0 === t1) { t0 -= 3 * 864e5; t1 += 3 * 864e5; }
-    const x = (t) => L + (t - t0) / (t1 - t0) * (R - L - 8), y = (v) => H - B - (v - lo) / (hi - lo) * (H - B - T);
-    for (let v = lo; v <= hi + 1e-9; v += step) {
-      svgEl('line', { x1: L, x2: R, y1: y(v), y2: y(v), stroke: '#262c35' }, svg);
-      const t = svgEl('text', { x: L - 6, y: y(v) + 4, 'text-anchor': 'end', fill: '#8a94a3', 'font-size': 11 }, svg); t.textContent = '$' + nf0.format(v);
-    }
+    const x = (t) => L + 8 + (t - t0) / (t1 - t0) * (R - L - 16), y = (v) => H - B - (v - lo) / (hi - lo) * (H - B - T);
+    const defs = svgEl('defs', {}, svg);
+    const g = svgEl('linearGradient', { id: 'areaFill', x1: 0, y1: 0, x2: 0, y2: 1 }, defs);
+    [[0, .28], [.6, .06], [1, 0]].forEach(([o, a]) => svgEl('stop', { offset: o, style: `stop-color:var(--accent);stop-opacity:${a}` }, g));
+    ticks.forEach((v) => {
+      svgEl('line', { x1: L, x2: R, y1: y(v), y2: y(v), class: 'grid' }, svg);
+      const t = svgEl('text', { x: L - 10, y: y(v) + 4, 'text-anchor': 'end' }, svg); t.textContent = '$' + nf0.format(v);
+    });
     const nT = Math.max(2, Math.min(rows.length, Math.floor((R - L) / 90)));
     for (let i = 0; i < nT; i++) {
-      const tt = t0 + (t1 - t0) * (nT === 1 ? 0.5 : i / (nT - 1));
-      const t = svgEl('text', { x: x(tt), y: H - 6, 'text-anchor': 'middle', fill: '#8a94a3', 'font-size': 11 }, svg);
+      const tt = t0 + (t1 - t0) * (i / (nT - 1));
+      const t = svgEl('text', { x: x(tt), y: H - 6, 'text-anchor': i === 0 ? 'start' : i === nT - 1 ? 'end' : 'middle' }, svg);
       t.textContent = new Date(tt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
     }
-    const path = (k) => rows.map((r, i) => (i ? 'L' : 'M') + x(r.t).toFixed(1) + ',' + y(r[k]).toFixed(1)).join('');
-    svgEl('path', { d: path('cost'), fill: 'none', stroke: '#8a94a3', 'stroke-width': 1.5, 'stroke-dasharray': '4 3' }, svg);
-    svgEl('path', { d: path('value'), fill: 'none', stroke: '#f5a524', 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, svg);
-    if (rows.length < 20) rows.forEach((r) => { svgEl('circle', { cx: x(r.t), cy: y(r.value), r: 3, fill: '#f5a524' }, svg); svgEl('circle', { cx: x(r.t), cy: y(r.cost), r: 2.5, fill: '#8a94a3' }, svg); });
-    const lastR = rows[rows.length - 1];
-    let y1 = y(lastR.value), y2 = y(lastR.cost);
-    if (Math.abs(y1 - y2) < 30) { const m = (y1 + y2) / 2; if (y1 <= y2) { y1 = m - 15; y2 = m + 15; } else { y2 = m - 15; y1 = m + 15; } }
-    [[y1, 'Value', lastR.value, '#f5a524'], [y2, 'Cost', lastR.cost, '#8a94a3']].forEach(([yy, n, v, c]) => {
-      const a = svgEl('text', { x: R + 6, y: yy - 2, fill: c, 'font-size': 11 }, svg); a.textContent = n;
-      const bb = svgEl('text', { x: R + 6, y: yy + 12, fill: '#e8ebef', 'font-size': 11 }, svg); bb.textContent = usd(v);
-    });
+    const pts = (k) => rows.map((r) => [x(r.t), y(r[k])]);
+    const d = (p) => p.map((q, i) => (i ? 'L' : 'M') + q[0].toFixed(1) + ',' + q[1].toFixed(1)).join('');
+    const pv = pts('value');
+    if (rows.length > 1) svgEl('path', { d: d(pv) + `L${pv[pv.length - 1][0]},${H - B}L${pv[0][0]},${H - B}Z`, class: 'area' }, svg);
+    svgEl('path', { d: d(pts('cost')), fill: 'none', class: 'l-cost', 'stroke-width': 1.5, 'stroke-dasharray': '5 4' }, svg);
+    svgEl('path', { d: d(pv), fill: 'none', class: 'l-value', 'stroke-width': 2.5, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, svg);
+    if (rows.length < 20) rows.forEach((r) => { svgEl('circle', { cx: x(r.t), cy: y(r.cost), r: 3, class: 'dot-cost' }, svg); svgEl('circle', { cx: x(r.t), cy: y(r.value), r: 4, class: 'dot-value' }, svg); });
+
     const tip = document.createElement('div'); tip.className = 'tip'; tip.hidden = true; el.appendChild(tip);
-    const dot = svgEl('circle', { r: 5, fill: '#f5a524', stroke: '#171b21', 'stroke-width': 2, visibility: 'hidden' }, svg);
+    const dot = svgEl('circle', { r: 6, class: 'dot-value', style: 'stroke:var(--surface);stroke-width:3', visibility: 'hidden' }, svg);
     const hit = svgEl('rect', { x: L, y: 0, width: R - L, height: H - B, fill: 'transparent' }, svg);
-    hit.addEventListener('pointermove', (ev) => {
-      const k = el.clientWidth / W, mx = (ev.clientX - svg.getBoundingClientRect().left) / k;
+    const move = (clientX) => {
+      const k = el.clientWidth / W, mx = (clientX - svg.getBoundingClientRect().left) / k;
       let r = rows[0]; rows.forEach((q) => { if (Math.abs(x(q.t) - mx) < Math.abs(x(r.t) - mx)) r = q; });
       dot.setAttribute('cx', x(r.t)); dot.setAttribute('cy', y(r.value)); dot.setAttribute('visibility', 'visible');
-      tip.replaceChildren();
-      [[fmtDay(r.day), 'muted'], ['Value ' + usd(r.value)], ['Cost ' + usd(r.cost)]].forEach(([t, c]) => { const d = document.createElement('div'); d.textContent = t; if (c) d.className = c; tip.appendChild(d); });
+      tip.replaceChildren(txt('div', fmtDay(r.day), 'muted'), txt('div', 'Value ' + usd(r.value)), txt('div', 'Cost ' + usd(r.cost), 'muted'));
       tip.hidden = false;
       tip.style.left = Math.min(Math.max(0, x(r.t) * k - tip.offsetWidth / 2), el.clientWidth - tip.offsetWidth) + 'px';
-      tip.style.top = Math.max(0, y(r.value) * k - tip.offsetHeight - 10) + 'px';
-    });
+      tip.style.top = Math.max(0, y(r.value) * k - tip.offsetHeight - 14) + 'px';
+    };
+    hit.addEventListener('pointermove', (ev) => move(ev.clientX));
+    hit.addEventListener('pointerdown', (ev) => move(ev.clientX));
     hit.addEventListener('pointerleave', () => { tip.hidden = true; dot.setAttribute('visibility', 'hidden'); });
   }
 
@@ -280,44 +498,67 @@
     const m = new Map();
     pos.forEach((r) => { const c = m.get(r.category) || { category: r.category, value: 0, cost: 0 }; c.value += r.value; c.cost += r.cost; m.set(r.category, c); });
     const rows = [...m.values()].sort((a, b) => b.value - a.value);
-    const W = Math.max(300, el.clientWidth), rh = 34, H = rows.length * rh, L = 130, R = W - 150;
-    const svg = svgEl('svg', { width: '100%', viewBox: `0 0 ${W} ${H}` }, el);
+    const total = rows.reduce((s, r) => s + r.value, 0) || 1;
+    const W = Math.max(280, el.clientWidth), rh = 46, H = rows.length * rh;
+    const svg = svgEl('svg', { width: '100%', viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Value by category' }, el);
     const max = Math.max(...rows.map((r) => r.value)) || 1;
     rows.forEach((r, i) => {
-      const yy = i * rh, w = Math.max(2, (r.value / max) * (R - L)), pnl = r.value - r.cost;
-      const a = svgEl('text', { x: L - 8, y: yy + rh / 2 + 4, 'text-anchor': 'end', fill: '#e8ebef', 'font-size': 12 }, svg); a.textContent = r.category;
-      svgEl('rect', { x: L, y: yy + 8, width: w, height: rh - 16, rx: 3, fill: '#f5a524', opacity: i === 0 ? 1 : 0.7 }, svg);
-      const t = svgEl('text', { x: L + w + 6, y: yy + rh / 2 + 4, 'font-size': 12 }, svg);
-      const s1 = svgEl('tspan', { fill: '#e8ebef' }, t); s1.textContent = usd(r.value) + '  ';
-      const s2 = svgEl('tspan', { fill: pnl >= 0 ? '#3fbf7f' : '#ef5d5d' }, t); s2.textContent = susd(pnl);
+      const yy = i * rh, pnl = r.value - r.cost;
+      const a = svgEl('text', { x: 0, y: yy + 14, class: 't-strong', style: 'font-size:13px' }, svg); a.textContent = r.category;
+      const s = svgEl('tspan', { dx: 8 }, a); s.textContent = Math.round(r.value / total * 100) + '%';
+      const v = svgEl('text', { x: W, y: yy + 14, 'text-anchor': 'end', style: 'font-size:13px' }, svg);
+      const v1 = svgEl('tspan', { class: 't-strong' }, v); v1.textContent = usd(r.value);
+      const v2 = svgEl('tspan', { dx: 8, class: pnl >= 0 ? 't-pos' : 't-neg' }, v); v2.textContent = susd(pnl);
+      svgEl('rect', { x: 0, y: yy + 22, width: W, height: 8, rx: 4, style: 'fill:var(--surface-2)' }, svg);
+      svgEl('rect', { x: 0, y: yy + 22, width: Math.max(4, r.value / max * W), height: 8, rx: 4, class: 'bar', opacity: i === 0 ? 1 : 0.65 }, svg);
     });
+  }
+
+  function drawMovers(pos) {
+    const fill = (id, list) => $(id).replaceChildren(...(list.length ? list.map((r) => {
+      const li = document.createElement('li');
+      const a = document.createElement('a'); a.className = 'item mover-name'; a.href = steamUrl(r.item); a.target = '_blank'; a.rel = 'noopener'; a.textContent = r.item; a.title = r.item;
+      li.append(a, txt('span', susd(r.pnl) + ' · ' + spct(r.pnl_pct), 'mover-val ' + (r.pnl >= 0 ? 'pos' : 'neg')));
+      return li;
+    }) : [txt('li', 'Nothing here yet', 'muted')]));
+    const withCost = pos.filter((r) => r.cost > 0);
+    fill('gainers', withCost.filter((r) => r.pnl > 0).sort((a, b) => b.pnl - a.pnl).slice(0, 5));
+    fill('losers', withCost.filter((r) => r.pnl < 0).sort((a, b) => a.pnl - b.pnl).slice(0, 5));
   }
 
   function setupTable(pos) {
     const st = { sort: 'value', dir: -1, q: '', cat: '' };
-    const cats = ['', ...new Set(pos.map((r) => r.category))];
+    const cats = ['', ...[...new Set(pos.map((r) => r.category))].sort()];
     const chips = $('chips'); chips.replaceChildren();
     cats.forEach((c) => {
-      const btn = document.createElement('button'); btn.className = 'chip'; btn.textContent = c || 'All';
-      btn.setAttribute('aria-pressed', String(c === '')); chips.append(btn, ' ');
+      const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'chip'; btn.textContent = c || 'All';
+      btn.setAttribute('aria-pressed', String(c === '')); chips.append(btn);
       btn.addEventListener('click', () => { st.cat = c; chips.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', String(x === btn))); draw(); });
     });
     $('q').addEventListener('input', (e) => { st.q = e.target.value.trim().toLowerCase(); draw(); });
-    document.querySelectorAll('#posTable th').forEach((th) => th.addEventListener('click', () => {
-      const k = th.dataset.k; st.dir = st.sort === k ? -st.dir : (k === 'item' ? 1 : -1); st.sort = k;
+    document.querySelectorAll('#posTable th[data-k] button').forEach((b) => b.addEventListener('click', () => {
+      const th = b.closest('th'), k = th.dataset.k; st.dir = st.sort === k ? -st.dir : (k === 'item' ? 1 : -1); st.sort = k;
       document.querySelectorAll('#posTable th').forEach((h) => h.removeAttribute('aria-sort'));
       th.setAttribute('aria-sort', st.dir > 0 ? 'ascending' : 'descending'); draw();
     }));
-    const td = (text, cls) => { const c = document.createElement('td'); if (cls) c.className = cls; c.textContent = text; return c; };
+    const td = (text, cls, label) => { const c = txt('td', text, cls); if (label) c.dataset.label = label; return c; };
     function draw() {
       const rows = pos.filter((r) => (!st.cat || r.category === st.cat) && (!st.q || r.item.toLowerCase().includes(st.q)))
         .sort((a, b) => { const va = a[st.sort], vb = b[st.sort]; return typeof va === 'string' ? st.dir * va.localeCompare(vb) : st.dir * ((va ?? -Infinity) - (vb ?? -Infinity)); });
-      document.querySelector('#posTable tbody').replaceChildren(...rows.map((r) => {
+      const body = document.querySelector('#posTable tbody');
+      if (!rows.length) { const tr = document.createElement('tr'); const c = txt('td', 'No items match.', 'empty'); c.colSpan = 8; tr.append(c); body.replaceChildren(tr); return; }
+      body.replaceChildren(...rows.map((r) => {
         const tr = document.createElement('tr');
-        const name = td('', 'l'); const a = document.createElement('a'); a.className = 'item'; a.href = steamUrl(r.item); a.target = '_blank'; a.rel = 'noopener'; a.textContent = r.item; name.appendChild(a);
-        tr.append(name, td(nf0.format(r.qty), 'hide-s'), td(usd(r.avg_buy), 'hide-s muted'), td(usd(r.price), r.stale ? 'warn' : ''), td(usd(r.value)),
-          td(susd(r.pnl), r.pnl >= 0 ? 'pos' : 'neg'), td(r.pnl_pct == null ? '—' : spct(r.pnl_pct), 'hide-s ' + (r.pnl_pct == null ? 'muted' : r.pnl_pct >= 0 ? 'pos' : 'neg')),
-          td(r.volume_24h == null ? '—' : nf0.format(r.volume_24h), 'hide-s muted'));
+        const name = td('', 'l'); const a = document.createElement('a'); a.className = 'item'; a.href = steamUrl(r.item); a.target = '_blank'; a.rel = 'noopener'; a.textContent = r.item;
+        name.append(a, txt('span', r.category, 'cat'));
+        tr.append(name,
+          td(nf0.format(r.qty), '', 'Qty'),
+          td(usd(r.avg_buy), 'muted hide-s', 'Avg'),
+          td(usd(r.price), 'r ' + (r.stale ? 'warn' : ''), 'Price'),
+          td(usd(r.value), '', 'Value'),
+          td(susd(r.pnl), 'r ' + (r.pnl >= 0 ? 'pos' : 'neg')),
+          td(r.pnl_pct == null ? '—' : spct(r.pnl_pct), 'hide-s ' + (r.pnl_pct == null ? 'muted' : r.pnl_pct >= 0 ? 'pos' : 'neg')),
+          td(r.volume_24h == null ? '—' : nf0.format(r.volume_24h), 'muted hide-s', 'Sold 24h'));
         return tr;
       }));
     }
@@ -325,12 +566,13 @@
   }
 
   function drawSales(sales) {
-    const td = (text, cls) => { const c = document.createElement('td'); if (cls) c.className = cls; c.textContent = text; return c; };
+    const td = (text, cls, label) => { const c = txt('td', text, cls); if (label) c.dataset.label = label; return c; };
     const rows = [...sales].sort((a, b) => (a.sold_on < b.sold_on ? 1 : -1));
     document.querySelector('#salesTable tbody').replaceChildren(...rows.map((r) => {
       const tr = document.createElement('tr'); const v = Number(r.realized);
-      tr.append(td(fmtDay(r.sold_on), 'l muted'), td(r.item, 'l'), td(nf0.format(r.qty)), td(usd(r.buy), 'hide-s muted'), td(usd(r.sale), 'hide-s'),
-        td(r.fee_pct + '%', 'hide-s muted'), td(susd(v), v >= 0 ? 'pos' : 'neg'));
+      const item = td('', 'l'); item.append(txt('span', r.item), txt('span', fmtDay(r.sold_on), 'cat show-s'));
+      tr.append(td(fmtDay(r.sold_on), 'l muted hide-s'), item, td(nf0.format(r.qty), '', 'Qty'), td(usd(r.buy), 'muted hide-s', 'Buy'),
+        td(usd(r.sale), '', 'Sale'), td(r.fee_pct + '%', 'muted hide-s', 'Fee'), td(susd(v), 'r ' + (v >= 0 ? 'pos' : 'neg')));
       return tr;
     }));
   }
