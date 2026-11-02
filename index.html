@@ -68,6 +68,7 @@
     <label><input type="checkbox" id="remember" checked> Remember on this device</label>
     <button class="go" type="submit" id="goBtn">Unlock</button>
     <p class="small neg" id="err" style="margin:0" hidden>Wrong password.</p>
+    <p class="small warn" id="insecure" style="margin:0" hidden>This page must be opened over https to unlock. Use https://skins.bekasibro.my.id</p>
   </form>
 </div>
 
@@ -167,8 +168,10 @@
     render(db);
   }
 
+  const secure = !!(window.isSecureContext && crypto && crypto.subtle);
+  if (!secure) { $('insecure').hidden = false; $('goBtn').disabled = true; }
   $('lockForm').addEventListener('submit', async (e) => {
-    e.preventDefault(); $('err').hidden = true; $('goBtn').disabled = true; $('goBtn').textContent = 'Unlocking…';
+    e.preventDefault(); if (!secure) return; $('err').hidden = true; $('goBtn').disabled = true; $('goBtn').textContent = 'Unlocking…';
     try { await unlock($('pw').value, $('remember').checked); }
     catch (err) { $('err').hidden = false; }
     finally { $('goBtn').disabled = false; $('goBtn').textContent = 'Unlock'; }
