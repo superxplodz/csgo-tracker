@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>CS2 skin portfolio</title>
+<style>
+  :root {
+    --bg: #0f1216; --panel: #171b21; --line: #262c35; --fg: #e8ebef; --muted: #8a94a3;
+    --accent: #f5a524; --ok: #3fbf7f; --bad: #ef5d5d; --warn: #f0b429;
+    --r: 10px; --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 24px 16px 64px; display: flex; flex-direction: column; gap: 20px; }
+  h1 { font-size: 26px; font-weight: 600; margin: 0; }
+  h2 { font-size: 16px; font-weight: 600; margin: 0; }
+  .muted { color: var(--muted); }
+  .small { font-size: 13px; }
+  .num { font-variant-numeric: tabular-nums; }
+  .pos { color: var(--ok); } .neg { color: var(--bad); } .warn { color: var(--warn); }
+  .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  .take { margin: 6px 0 0; color: var(--muted); }
+  .take b { color: var(--fg); } .take b.pos { color: var(--ok); } .take b.neg { color: var(--bad); }
+  button, input { font: inherit; }
+  .btn { background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 13px; }
+  .btn:hover { color: var(--fg); }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; min-width: 0; }
+  .tile .lab { font-size: 13px; color: var(--muted); }
+  .tile .big { font-size: 26px; margin: 6px 0 2px; font-variant-numeric: tabular-nums; }
+  .tile .sub { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 12px; }
+  .chart { position: relative; margin-top: 10px; }
+  .tip { position: absolute; pointer-events: none; background: #20262e; border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font-size: 12px; white-space: nowrap; box-shadow: 0 6px 20px rgba(0,0,0,.4); }
+  .tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+  .search { flex: 1 1 200px; max-width: 320px; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; }
+  .chip { background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 5px 10px; font-size: 12px; cursor: pointer; }
+  .chip[aria-pressed="true"] { color: var(--fg); border-color: var(--accent); }
+  .scroll { max-height: 560px; overflow: auto; border-top: 1px solid var(--line); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+  th { position: sticky; top: 0; background: var(--panel); color: var(--muted); font-weight: 500; text-align: right; padding: 8px; border-bottom: 1px solid var(--line); white-space: nowrap; cursor: pointer; user-select: none; }
+  th.l, td.l { text-align: left; }
+  th[aria-sort="ascending"]::after { content: " ↑"; } th[aria-sort="descending"]::after { content: " ↓"; }
+  td { padding: 7px 8px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  td.l { white-space: normal; min-width: 200px; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+  a.item { color: inherit; text-decoration: none; } a.item:hover { color: var(--accent); }
+  @media (max-width: 640px) { .hide-s { display: none; } h1 { font-size: 22px; } .tile .big { font-size: 22px; } }
+  /* lock screen */
+  .lock { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .lock .card { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 12px; }
+  .lock input[type=password] { background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .lock .go { background: var(--accent); color: #111; border: 0; border-radius: 8px; padding: 10px; font-weight: 600; cursor: pointer; }
+  .lock label { font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="lock" id="lock">
+  <form class="card" id="lockForm" autocomplete="on">
+    <h1>CS2 skin portfolio</h1>
+    <p class="muted small" style="margin:0">Private. Enter the password to view.</p>
+    <input type="text" name="username" value="portfolio" autocomplete="username" hidden>
+    <input type="password" id="pw" placeholder="Password" autocomplete="current-password" required autofocus>
+    <label><input type="checkbox" id="remember" checked> Remember on this device</label>
+    <button class="go" type="submit" id="goBtn">Unlock</button>
+    <p class="small neg" id="err" style="margin:0" hidden>Wrong password.</p>
+  </form>
+</div>
+
+<div class="wrap" id="app" hidden>
+  <div class="top">
+    <div>
+      <h1>CS2 skin portfolio</h1>
+      <p class="take" id="take"></p>
+    </div>
+    <button class="btn" id="logout">Lock</button>
+  </div>
+
+  <div class="tiles">
+    <div class="card tile"><div class="lab">Market value</div><div class="big" id="kValue"></div><div class="sub">Steam lowest listing × qty</div></div>
+    <div class="card tile"><div class="lab">Change since last update</div><div class="big" id="kChange"></div><div class="sub" id="kChangePct"></div></div>
+    <div class="card tile"><div class="lab">Unrealized profit</div><div class="big" id="kPnl"></div><div class="sub" id="kPnlPct"></div></div>
+    <div class="card tile"><div class="lab">Cost basis</div><div class="big" id="kCost"></div><div class="sub">What you paid for current holdings</div></div>
+    <div class="card tile"><div class="lab">If sold on Steam</div><div class="big" id="kAfter"></div><div class="sub">After Steam's ~13% seller fee</div></div>
+    <div class="card tile"><div class="lab">Realized profit</div><div class="big" id="kReal"></div><div class="sub">From past sales, after fees</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Portfolio value over time</h2>
+      <div class="muted small">Market value vs cost basis, one point per daily update.</div>
+      <div class="chart" id="trend"></div>
+      <div class="muted small" id="trendNote" hidden>The line builds as daily updates come in.</div>
+    </div>
+    <div class="card">
+      <h2>Value by category</h2>
+      <div class="muted small">Today's market value, with profit or loss vs cost.</div>
+      <div class="chart" id="cats"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Holdings</h2>
+    <div class="muted small">Priced at the lowest Steam listing. <span class="warn">Orange</span> prices are from an earlier day because Steam didn't answer.</div>
+    <div class="tools">
+      <input class="search" id="q" type="search" placeholder="Search items">
+      <span id="chips"></span>
+    </div>
+    <div class="scroll">
+      <table id="posTable">
+        <thead><tr>
+          <th class="l" data-k="item">Item</th>
+          <th class="hide-s" data-k="qty">Qty</th>
+          <th class="hide-s" data-k="avg_buy">Avg buy</th>
+          <th data-k="price">Price</th>
+          <th data-k="value" aria-sort="descending">Value</th>
+          <th data-k="pnl">Profit</th>
+          <th class="hide-s" data-k="pnl_pct">Profit %</th>
+          <th class="hide-s" data-k="volume_24h">Sold 24h</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Sales history</h2>
+    <div class="muted small">Profit is after the fee you logged on each sale.</div>
+    <div class="scroll" style="margin-top:12px">
+      <table id="salesTable">
+        <thead><tr>
+          <th class="l">Sold</th><th class="l">Item</th><th>Qty</th>
+          <th class="hide-s">Buy</th><th class="hide-s">Sale</th><th class="hide-s">Fee</th><th>Profit</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="muted small" id="footer"></div>
+</div>
+
+<script>
+(() => {
+  const KEY = 'cs2pf-pw';
+  const $ = (id) => document.getElementById(id);
+  const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+
+  async function decrypt(env, password) {
+    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', hash: 'SHA-256', salt: b64(env.salt), iterations: env.iter },
+      base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+    const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(env.iv) }, key, b64(env.ct));
+    return JSON.parse(new TextDecoder().decode(plain));
+  }
+
+  async function unlock(password, remember) {
+    const res = await fetch('data.enc?t=' + Date.now(), { cache: 'no-store' });
+    const env = await res.json();
+    const db = await decrypt(env, password);
+    try { if (remember) localStorage.setItem(KEY, password); } catch (e) {}
+    $('lock').hidden = true; $('app').hidden = false;
+    render(db);
+  }
+
+  $('lockForm').addEventListener('submit', async (e) => {
+    e.preventDefault(); $('err').hidden = true; $('goBtn').disabled = true; $('goBtn').textContent = 'Unlocking…';
+    try { await unlock($('pw').value, $('remember').checked); }
+    catch (err) { $('err').hidden = false; }
+    finally { $('goBtn').disabled = false; $('goBtn').textContent = 'Unlock'; }
+  });
+  $('logout').addEventListener('click', () => { try { localStorage.removeItem(KEY); } catch (e) {} location.reload(); });
+  try { const saved = localStorage.getItem(KEY); if (saved) unlock(saved, true).catch(() => localStorage.removeItem(KEY)); } catch (e) {}
+
+  // ---------- formatting ----------
+  const nf2 = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const nf0 = new Intl.NumberFormat('en-US');
+  const usd = (v) => '$' + nf2.format(v);
+  const susd = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + '$' + nf2.format(Math.abs(v));
+  const spct = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + (Math.abs(v) * 100).toFixed(1) + '%';
+  const tone = (el, v) => { el.classList.remove('pos', 'neg'); if (v != null) el.classList.add(v >= 0 ? 'pos' : 'neg'); };
+  const set = (id, text, v) => { const el = $(id); el.textContent = text; if (v !== undefined) tone(el, v); };
+  const fmtDay = (d) => new Date(d + 'T00:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+  const steamUrl = (n) => 'https://steamcommunity.com/market/listings/730/' + encodeURIComponent(n);
+  const NS = 'http://www.w3.org/2000/svg';
+  const svgEl = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
+
+  function render(db) {
+    const pmap = new Map(db.prices.map((p) => [p.item, p]));
+    const pos = db.holdings.map((h) => {
+      const p = pmap.get(h.item) || {};
+      const price = Number(p.price) || 0, value = Math.round(price * h.qty * 100) / 100;
+      return { ...h, price, value, pnl: Math.round((value - h.cost) * 100) / 100, pnl_pct: h.cost > 0 ? (value - h.cost) / h.cost : null,
+        volume_24h: p.volume_24h ?? null, stale: !(p.source || '').startsWith('Steam lowest') };
+    });
+    const value = pos.reduce((s, r) => s + r.value, 0), cost = pos.reduce((s, r) => s + r.cost, 0);
+    const realized = db.sales.reduce((s, r) => s + Number(r.realized), 0);
+    const units = pos.reduce((s, r) => s + r.qty, 0);
+    const hist = [...db.history].sort((a, b) => (a.day < b.day ? -1 : 1));
+    const last = hist[hist.length - 1], prev = hist[hist.length - 2];
+
+    const take = $('take'); take.replaceChildren();
+    const b = (t, cls) => { const e = document.createElement('b'); e.textContent = t; if (cls) e.className = cls; return e; };
+    take.append('Your ', b(nf0.format(units)), ' items are worth ', b(usd(value)), ' on the Steam Market. That is ',
+      b(susd(value - cost), value - cost >= 0 ? 'pos' : 'neg'), ' against what you paid.');
+
+    set('kValue', usd(value)); set('kCost', usd(cost)); set('kAfter', usd(value / 1.15));
+    set('kPnl', susd(value - cost), value - cost); set('kPnlPct', cost ? spct((value - cost) / cost) : '', value - cost);
+    set('kReal', susd(realized), realized);
+    if (last && prev) { const ch = last.value - prev.value; set('kChange', susd(ch), ch); set('kChangePct', spct(ch / prev.value) + ' vs ' + fmtDay(prev.day), ch); }
+    else { set('kChange', '—'); set('kChangePct', 'Needs two daily updates'); }
+
+    const draw = () => { drawTrend(hist); drawCats(pos); };
+    draw(); let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(draw, 150); });
+    setupTable(pos);
+    drawSales(db.sales);
+    const upd = db.updated_at ? new Date(db.updated_at) : null;
+    $('footer').textContent = 'Prices last updated ' + (upd ? upd.toLocaleString('en-GB', { timeZone: 'Asia/Jakarta', dateStyle: 'medium', timeStyle: 'short' }) + ' WIB' : '—') +
+      '. Source: Steam Community Market. Updates daily at 06:47 WIB.';
+  }
+
+  function drawTrend(hist) {
+    const el = $('trend'); el.replaceChildren();
+    $('trendNote').hidden = hist.length >= 3;
+    if (!hist.length) return;
+    const rows = hist.map((r) => ({ day: r.day, t: Date.parse(r.day + 'T00:00:00Z'), value: Number(r.value), cost: Number(r.cost) }));
+    const W = Math.max(300, el.clientWidth), H = 240, B = 24, T = 10, L = 56, R = W - 80;
+    const svg = svgEl('svg', { width: '100%', viewBox: `0 0 ${W} ${H}` }, el);
+    let lo = Math.min(...rows.map((r) => Math.min(r.value, r.cost))) * 0.85, hi = Math.max(...rows.map((r) => Math.max(r.value, r.cost))) * 1.08;
+    const step = Math.pow(10, Math.floor(Math.log10((hi - lo) / 4))) * 5 || 1;
+    lo = Math.max(0, Math.floor(lo / step) * step); hi = Math.ceil(hi / step) * step;
+    let t0 = rows[0].t, t1 = rows[rows.length - 1].t; if (t0 === t1) { t0 -= 3 * 864e5; t1 += 3 * 864e5; }
+    const x = (t) => L + (t - t0) / (t1 - t0) * (R - L - 8), y = (v) => H - B - (v - lo) / (hi - lo) * (H - B - T);
+    for (let v = lo; v <= hi + 1e-9; v += step) {
+      svgEl('line', { x1: L, x2: R, y1: y(v), y2: y(v), stroke: '#262c35' }, svg);
+      const t = svgEl('text', { x: L - 6, y: y(v) + 4, 'text-anchor': 'end', fill: '#8a94a3', 'font-size': 11 }, svg); t.textContent = '$' + nf0.format(v);
+    }
+    const nT = Math.max(2, Math.min(rows.length, Math.floor((R - L) / 90)));
+    for (let i = 0; i < nT; i++) {
+      const tt = t0 + (t1 - t0) * (nT === 1 ? 0.5 : i / (nT - 1));
+      const t = svgEl('text', { x: x(tt), y: H - 6, 'text-anchor': 'middle', fill: '#8a94a3', 'font-size': 11 }, svg);
+      t.textContent = new Date(tt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+    }
+    const path = (k) => rows.map((r, i) => (i ? 'L' : 'M') + x(r.t).toFixed(1) + ',' + y(r[k]).toFixed(1)).join('');
+    svgEl('path', { d: path('cost'), fill: 'none', stroke: '#8a94a3', 'stroke-width': 1.5, 'stroke-dasharray': '4 3' }, svg);
+    svgEl('path', { d: path('value'), fill: 'none', stroke: '#f5a524', 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, svg);
+    if (rows.length < 20) rows.forEach((r) => { svgEl('circle', { cx: x(r.t), cy: y(r.value), r: 3, fill: '#f5a524' }, svg); svgEl('circle', { cx: x(r.t), cy: y(r.cost), r: 2.5, fill: '#8a94a3' }, svg); });
+    const lastR = rows[rows.length - 1];
+    let y1 = y(lastR.value), y2 = y(lastR.cost);
+    if (Math.abs(y1 - y2) < 30) { const m = (y1 + y2) / 2; if (y1 <= y2) { y1 = m - 15; y2 = m + 15; } else { y2 = m - 15; y1 = m + 15; } }
+    [[y1, 'Value', lastR.value, '#f5a524'], [y2, 'Cost', lastR.cost, '#8a94a3']].forEach(([yy, n, v, c]) => {
+      const a = svgEl('text', { x: R + 6, y: yy - 2, fill: c, 'font-size': 11 }, svg); a.textContent = n;
+      const bb = svgEl('text', { x: R + 6, y: yy + 12, fill: '#e8ebef', 'font-size': 11 }, svg); bb.textContent = usd(v);
+    });
+    const tip = document.createElement('div'); tip.className = 'tip'; tip.hidden = true; el.appendChild(tip);
+    const dot = svgEl('circle', { r: 5, fill: '#f5a524', stroke: '#171b21', 'stroke-width': 2, visibility: 'hidden' }, svg);
+    const hit = svgEl('rect', { x: L, y: 0, width: R - L, height: H - B, fill: 'transparent' }, svg);
+    hit.addEventListener('pointermove', (ev) => {
+      const k = el.clientWidth / W, mx = (ev.clientX - svg.getBoundingClientRect().left) / k;
+      let r = rows[0]; rows.forEach((q) => { if (Math.abs(x(q.t) - mx) < Math.abs(x(r.t) - mx)) r = q; });
+      dot.setAttribute('cx', x(r.t)); dot.setAttribute('cy', y(r.value)); dot.setAttribute('visibility', 'visible');
+      tip.replaceChildren();
+      [[fmtDay(r.day), 'muted'], ['Value ' + usd(r.value)], ['Cost ' + usd(r.cost)]].forEach(([t, c]) => { const d = document.createElement('div'); d.textContent = t; if (c) d.className = c; tip.appendChild(d); });
+      tip.hidden = false;
+      tip.style.left = Math.min(Math.max(0, x(r.t) * k - tip.offsetWidth / 2), el.clientWidth - tip.offsetWidth) + 'px';
+      tip.style.top = Math.max(0, y(r.value) * k - tip.offsetHeight - 10) + 'px';
+    });
+    hit.addEventListener('pointerleave', () => { tip.hidden = true; dot.setAttribute('visibility', 'hidden'); });
+  }
+
+  function drawCats(pos) {
+    const el = $('cats'); el.replaceChildren();
+    const m = new Map();
+    pos.forEach((r) => { const c = m.get(r.category) || { category: r.category, value: 0, cost: 0 }; c.value += r.value; c.cost += r.cost; m.set(r.category, c); });
+    const rows = [...m.values()].sort((a, b) => b.value - a.value);
+    const W = Math.max(300, el.clientWidth), rh = 34, H = rows.length * rh, L = 130, R = W - 150;
+    const svg = svgEl('svg', { width: '100%', viewBox: `0 0 ${W} ${H}` }, el);
+    const max = Math.max(...rows.map((r) => r.value)) || 1;
+    rows.forEach((r, i) => {
+      const yy = i * rh, w = Math.max(2, (r.value / max) * (R - L)), pnl = r.value - r.cost;
+      const a = svgEl('text', { x: L - 8, y: yy + rh / 2 + 4, 'text-anchor': 'end', fill: '#e8ebef', 'font-size': 12 }, svg); a.textContent = r.category;
+      svgEl('rect', { x: L, y: yy + 8, width: w, height: rh - 16, rx: 3, fill: '#f5a524', opacity: i === 0 ? 1 : 0.7 }, svg);
+      const t = svgEl('text', { x: L + w + 6, y: yy + rh / 2 + 4, 'font-size': 12 }, svg);
+      const s1 = svgEl('tspan', { fill: '#e8ebef' }, t); s1.textContent = usd(r.value) + '  ';
+      const s2 = svgEl('tspan', { fill: pnl >= 0 ? '#3fbf7f' : '#ef5d5d' }, t); s2.textContent = susd(pnl);
+    });
+  }
+
+  function setupTable(pos) {
+    const st = { sort: 'value', dir: -1, q: '', cat: '' };
+    const cats = ['', ...new Set(pos.map((r) => r.category))];
+    const chips = $('chips'); chips.replaceChildren();
+    cats.forEach((c) => {
+      const btn = document.createElement('button'); btn.className = 'chip'; btn.textContent = c || 'All';
+      btn.setAttribute('aria-pressed', String(c === '')); chips.append(btn, ' ');
+      btn.addEventListener('click', () => { st.cat = c; chips.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', String(x === btn))); draw(); });
+    });
+    $('q').addEventListener('input', (e) => { st.q = e.target.value.trim().toLowerCase(); draw(); });
+    document.querySelectorAll('#posTable th').forEach((th) => th.addEventListener('click', () => {
+      const k = th.dataset.k; st.dir = st.sort === k ? -st.dir : (k === 'item' ? 1 : -1); st.sort = k;
+      document.querySelectorAll('#posTable th').forEach((h) => h.removeAttribute('aria-sort'));
+      th.setAttribute('aria-sort', st.dir > 0 ? 'ascending' : 'descending'); draw();
+    }));
+    const td = (text, cls) => { const c = document.createElement('td'); if (cls) c.className = cls; c.textContent = text; return c; };
+    function draw() {
+      const rows = pos.filter((r) => (!st.cat || r.category === st.cat) && (!st.q || r.item.toLowerCase().includes(st.q)))
+        .sort((a, b) => { const va = a[st.sort], vb = b[st.sort]; return typeof va === 'string' ? st.dir * va.localeCompare(vb) : st.dir * ((va ?? -Infinity) - (vb ?? -Infinity)); });
+      document.querySelector('#posTable tbody').replaceChildren(...rows.map((r) => {
+        const tr = document.createElement('tr');
+        const name = td('', 'l'); const a = document.createElement('a'); a.className = 'item'; a.href = steamUrl(r.item); a.target = '_blank'; a.rel = 'noopener'; a.textContent = r.item; name.appendChild(a);
+        tr.append(name, td(nf0.format(r.qty), 'hide-s'), td(usd(r.avg_buy), 'hide-s muted'), td(usd(r.price), r.stale ? 'warn' : ''), td(usd(r.value)),
+          td(susd(r.pnl), r.pnl >= 0 ? 'pos' : 'neg'), td(r.pnl_pct == null ? '—' : spct(r.pnl_pct), 'hide-s ' + (r.pnl_pct == null ? 'muted' : r.pnl_pct >= 0 ? 'pos' : 'neg')),
+          td(r.volume_24h == null ? '—' : nf0.format(r.volume_24h), 'hide-s muted'));
+        return tr;
+      }));
+    }
+    draw();
+  }
+
+  function drawSales(sales) {
+    const td = (text, cls) => { const c = document.createElement('td'); if (cls) c.className = cls; c.textContent = text; return c; };
+    const rows = [...sales].sort((a, b) => (a.sold_on < b.sold_on ? 1 : -1));
+    document.querySelector('#salesTable tbody').replaceChildren(...rows.map((r) => {
+      const tr = document.createElement('tr'); const v = Number(r.realized);
+      tr.append(td(fmtDay(r.sold_on), 'l muted'), td(r.item, 'l'), td(nf0.format(r.qty)), td(usd(r.buy), 'hide-s muted'), td(usd(r.sale), 'hide-s'),
+        td(r.fee_pct + '%', 'hide-s muted'), td(susd(v), v >= 0 ? 'pos' : 'neg'));
+      return tr;
+    }));
+  }
+})();
+</script>
+</body>
+</html>
