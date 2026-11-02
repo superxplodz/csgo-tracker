@@ -9,9 +9,10 @@ Private tracker for a CS2 skin portfolio, hosted on GitHub Pages at
 - `scripts/update_prices.py` pulls the lowest listing price for each item from the Steam
   Community Market, adds a row to the value history and rewrites `data.enc`. Items priced in
   the last 20 hours are skipped, so a run that Steam rate-limits is finished by the next run.
-- Daily prices come from a **Windows scheduled task on the home PC** (`scripts/run_update.ps1`):
-  06:47 WIB, then every 3 hours until 21:47. GitHub's servers get rate-limited by Steam, so
-  the GitHub Action (`update-prices.yml`) is manual-only, as a backup.
+- Daily prices come from a **Claude scheduled task** (06:47 WIB). It runs
+  `update_prices.py --list` to see which items need a price, fetches them from Steam,
+  then runs `PRICES_FILE=fetched.json update_prices.py` and pushes `data.enc`.
+  GitHub's servers get rate-limited by Steam, so the GitHub Action is manual-only, as a backup.
 
 ## One-time setup
 
@@ -21,14 +22,6 @@ Private tracker for a CS2 skin portfolio, hosted on GitHub Pages at
    Custom domain: `skins.bekasibro.my.id`, then tick "Enforce HTTPS" once it is offered.
 3. **DNS** (indo.domains → bekasibro.my.id → DNS): add a `CNAME` record,
    host `skins`, value `superxplodz.github.io`.
-4. **Home PC (Windows):** install [Git](https://git-scm.com/download/win) and
-   [Python](https://www.python.org/downloads/) (tick "Add python.exe to PATH"). Then in PowerShell:
-   ```
-   git clone https://github.com/superxplodz/csgo-tracker.git
-   cd csgo-tracker
-   powershell -ExecutionPolicy Bypass -File scripts\install_task.ps1
-   ```
-   Enter the site password when asked. Git may open a browser window once to sign in to GitHub.
 
 ## Editing holdings by hand
 
