@@ -60,11 +60,20 @@ def fetch(name):
     return None
 
 
+def file_fetcher(path):
+    """Prices fetched elsewhere: JSON {item: {"price":..,"median":..,"volume_24h":..} or null}."""
+    got = json.load(open(path, encoding="utf-8"))
+    def fetch_from_file(name):
+        r = got.get(name)
+        return r if r and r.get("price") else None
+    return fetch_from_file
+
+
 def main():
     pw = os.environ.get("SITE_PASSWORD")
     if not pw:
         sys.exit("SITE_PASSWORD is not set")
-    db = decrypt(open(DATA).read(), pw)
+    db = decrypt(open(DATA, encoding="utf-8").read(), pw)
     old = {p["item"]: p for p in db.get("prices", [])}
     now_dt = datetime.now(timezone.utc)
     now = now_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -80,10 +89,21 @@ def main():
 
     todo = [h["item"] for h in db["holdings"] if not fresh(old.get(h["item"]))]
     print(f"{len(todo)} of {len(db['holdings'])} items need a price", flush=True)
+    if "--list" in sys.argv:  # print the items that still need a price, one per line, then stop
+        out = sys.argv[sys.argv.index("--list") + 1] if len(sys.argv) > sys.argv.index("--list") + 1 else None
+        text = "\n".join(f"{n}\t{URL + urllib.parse.quote(n, safe='')}" for n in todo)
+        if out:
+            open(out, "w", encoding="utf-8").write(text + "\n")
+        else:
+            print(text)
+        return
+    fetch_fn, delay = fetch, DELAY
+    if os.environ.get("PRICES_FILE"):
+        fetch_fn, delay = file_fetcher(os.environ["PRICES_FILE"]), 0
     got_map, streak, stopped = {}, 0, False
     for i, name in enumerate(todo):
         try:
-            got = fetch(name)
+            got = fetch_fn(name)
             streak = 0
         except RateLimited:
             streak += 1
@@ -97,7 +117,7 @@ def main():
         if got:
             got_map[name] = got
         print(f"[{i + 1}/{len(todo)}] {name}: {got['price'] if got else 'no price'}", flush=True)
-        time.sleep(DELAY)
+        time.sleep(delay)
 
     today = datetime.now(JAKARTA).strftime("%Y-%m-%d")
     if not got_map and any(r["day"] == today for r in db.get("history", [])):
@@ -127,7 +147,7 @@ def main():
     hist.sort(key=lambda r: r["day"])
 
     db.update(prices=prices, history=hist, updated_at=now)
-    open(DATA, "w").write(encrypt(db, pw))
+    open(DATA, "w", encoding="utf-8").write(encrypt(db, pw))
     print(f"Done. Value ${value:,.2f}, cost ${cost:,.2f}. Failed: {len(failed)}")
     for f in failed:
         print("  failed:", f)

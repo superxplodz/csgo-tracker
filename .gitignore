@@ -1,2 +1,5 @@
 data.json
 __pycache__/
+update.log
+fetched.json
+todo.tsv

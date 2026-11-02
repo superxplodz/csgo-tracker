@@ -1,10 +1,10 @@
 name: Update Steam prices
 
 on:
-  schedule:
-    - cron: "47 23 * * *"     # 06:47 WIB: main daily update
-    - cron: "17 2-14/3 * * *" # 09:17 to 21:17 WIB every 3h: finishes any items Steam rate-limited
-  workflow_dispatch: {}      # lets you run it by hand from the Actions tab
+  # No schedule: Steam rate-limits GitHub's servers. Daily prices come from the
+  # home-PC task (scripts/run_update.ps1, set up with scripts/install_task.ps1).
+  # This stays available as a manual backup from the Actions tab.
+  workflow_dispatch: {}
 
 permissions:
   contents: write
