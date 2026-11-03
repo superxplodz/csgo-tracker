@@ -13,6 +13,8 @@ Password-protected portfolio site at **https://skins.bekasibro.my.id**, served b
 | `scripts/data_tool.py` | Open, edit and re-seal `data.enc` by hand, or change the password. |
 | `scripts/crypto_box.py` | Encryption shared by both scripts (browser-compatible). |
 | `.github/workflows/apply-prices.yml` | Runs `apply_prices.py` when new prices are pushed. |
+| `android/` | Small Android app that opens the site full-screen. |
+| `.github/workflows/android.yml` | Builds the app and publishes it as `download/cs2-portfolio.apk`. |
 
 ## How prices update
 

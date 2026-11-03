@@ -1,0 +1,46 @@
+name: Build Android app
+
+# Builds a small WebView app that opens the site, and publishes it at /download/cs2-portfolio.apk.
+# The app only loads the website, so it only needs rebuilding when files in android/ change.
+on:
+  push:
+    branches: [main]
+    paths: ["android/**", ".github/workflows/android.yml"]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+      - name: Build APK
+        run: gradle -p android assembleDebug --no-daemon 2>&1 | tee /tmp/build.log
+      - name: Publish APK
+        run: |
+          mkdir -p download
+          cp android/app/build/outputs/apk/debug/app-debug.apk download/cs2-portfolio.apk
+          rm -f download/build-error.txt
+          git config user.name "build-bot"
+          git config user.email "build-bot@users.noreply.github.com"
+          git add -A download
+          git diff --cached --quiet || git commit -m "Android app build"
+          git pull --rebase && git push
+      - name: Save the error log if the build failed
+        if: failure()
+        run: |
+          mkdir -p download
+          tail -n 80 /tmp/build.log > download/build-error.txt || echo "no log" > download/build-error.txt
+          git config user.name "build-bot"
+          git config user.email "build-bot@users.noreply.github.com"
+          git add download/build-error.txt && git commit -m "Android build failed (log)" && git pull --rebase && git push

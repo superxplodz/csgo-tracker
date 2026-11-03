@@ -542,6 +542,8 @@
     $('footer').textContent = `Prices from the Steam Community Market. Last update ${upd}.`;
 
     if (CUR === 'IDR' && db.fx) $('footer').textContent += ` 1 USD = Rp${idr.format(db.fx.IDR)}.`;
+    const app = el('a', 'Get the Android app', 'item'); app.href = 'download/cs2-portfolio.apk'; app.style.marginLeft = '8px';
+    $('footer').append(' ', app);
     redrawCharts = () => { drawTrend(hist); drawCats(pos); };
     if (!resizeHooked) { resizeHooked = true; let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => { if (!$('tab-overview').hidden) redrawCharts(); }, 150); }); }
     drawMovers(pos);
