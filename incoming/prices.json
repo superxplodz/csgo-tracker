@@ -1,340 +1,350 @@
 {
-"_date": "2026-11-03",
-"_fetched_at": "2026-11-03T02:25:01Z",
-"AUG | Death by Puppy (Minimal Wear)": {
-"price": 5.61,
-"median": null,
-"volume_24h": null,
-"listings": 66
-},
-"AWP | Redline (Field-Tested)": {
-"price": 39.99,
-"median": null,
-"volume_24h": null,
-"listings": 274
-},
-"Antwerp 2022 Challengers Sticker Capsule": {
-"price": 0.3,
-"median": null,
-"volume_24h": null,
-"listings": 5344
-},
-"Antwerp 2022 Challengers Autograph Capsule": {
-"price": 0.3,
-"median": null,
-"volume_24h": null,
-"listings": 3319
-},
-"Rio 2022 Challengers Autograph Capsule": {
-"price": 0.38,
-"median": null,
-"volume_24h": null,
-"listings": 1244
-},
-"Antwerp 2022 Legends Autograph Capsule": {
-"price": 0.36,
-"median": null,
-"volume_24h": null,
-"listings": 3861
-},
-"Rio 2022 Challengers Sticker Capsule": {
-"price": 0.21,
-"median": null,
-"volume_24h": null,
-"listings": 9646
-},
-"Rio 2022 Legends Autograph Capsule": {
-"price": 0.3,
-"median": null,
-"volume_24h": null,
-"listings": 2872
-},
-"Budapest 2025 Challengers Autograph Capsule": {
-"price": 0.27,
-"median": null,
-"volume_24h": null,
-"listings": 3531
-},
-"Austin 2025 Challengers Sticker Capsule": {
-"price": 0.19,
-"median": null,
-"volume_24h": null,
-"listings": 8671
-},
-"Austin 2025 Contenders Autograph Capsule": {
-"price": 0.25,
-"median": null,
-"volume_24h": null,
-"listings": 2279
-},
-"Austin 2025 Challengers Autograph Capsule": {
-"price": 0.27,
-"median": null,
-"volume_24h": null,
-"listings": 4852
-},
-"Budapest 2025 Challengers Sticker Capsule": {
-"price": 0.16,
-"median": null,
-"volume_24h": null,
-"listings": 21590
-},
-"Austin 2025 Legends Sticker Capsule": {
-"price": 0.19,
-"median": null,
-"volume_24h": null,
-"listings": 19373
-},
-"Budapest 2025 Contenders Autograph Capsule": {
-"price": 0.27,
-"median": null,
-"volume_24h": null,
-"listings": 2550
-},
-"Nova | Hyper Beast (Minimal Wear)": {
-"price": 18.17,
-"median": null,
-"volume_24h": null,
-"listings": 52
-},
-"Kilowatt Case": {
-"price": 0.15,
-"median": null,
-"volume_24h": null,
-"listings": 809207
-},
-"Berlin 2019 Legends Autograph Capsule": {
-"price": 1.53,
-"median": null,
-"volume_24h": null,
-"listings": 1218
-},
-"Budapest 2025 Legends Sticker Capsule": {
-"price": 0.18,
-"median": null,
-"volume_24h": null,
-"listings": 17664
-},
-"Budapest 2025 Legends Autograph Capsule": {
-"price": 0.31,
-"median": null,
-"volume_24h": null,
-"listings": 7303
-},
-"Budapest 2025 Contenders Sticker Capsule": {
-"price": 0.14,
-"median": null,
-"volume_24h": null,
-"listings": 26517
-},
-"CZ75-Auto | Xiangliu (Minimal Wear)": {
-"price": 15.53,
-"median": null,
-"volume_24h": null,
-"listings": 50
-},
-"Chroma 2 Case": {
-"price": 5.06,
-"median": null,
-"volume_24h": null,
-"listings": 13628
-},
-"Copenhagen 2024 Contenders Autograph Capsule": {
-"price": 0.2,
-"median": null,
-"volume_24h": null,
-"listings": 3659
-},
-"G3SG1 | Flux (Battle-Scarred)": {
-"price": 7.27,
-"median": null,
-"volume_24h": null,
-"listings": 13
-},
-"Galil AR | Rainbow Spoon (Minimal Wear)": {
-"price": 24.85,
-"median": null,
-"volume_24h": null,
-"listings": 162
-},
-"Copenhagen 2024 Challengers Autograph Capsule": {
-"price": 0.31,
-"median": null,
-"volume_24h": null,
-"listings": 2802
-},
-"M4A1-S | Vaporwave (Field-Tested)": {
-"price": 52.0,
-"median": null,
-"volume_24h": null,
-"listings": 118
-},
-"Music Kit | Daniel Sadowski, Total Domination": {
-"price": 3.52,
-"median": null,
-"volume_24h": null,
-"listings": 81
-},
-"Music Kit | Feed Me, High Noon": {
-"price": 3.58,
-"median": null,
-"volume_24h": null,
-"listings": 95
-},
-"Music Kit | Various Artists, Hotline Miami": {
-"price": 3.68,
-"median": null,
-"volume_24h": null,
-"listings": 355
-},
-"Operation Breakout Weapon Case": {
-"price": 10.25,
-"median": null,
-"volume_24h": null,
-"listings": 16477
-},
-"Operation Phoenix Weapon Case": {
-"price": 4.8,
-"median": null,
-"volume_24h": null,
-"listings": 11567
-},
-"P90 | Vent Rush (Minimal Wear)": {
-"price": 0.69,
-"median": null,
-"volume_24h": null,
-"listings": 526
-},
-"Paris 2023 Contenders Sticker Capsule": {
-"price": 0.1,
-"median": null,
-"volume_24h": null,
-"listings": 183291
-},
-"Paris 2023 Legends Sticker Capsule": {
-"price": 0.11,
-"median": null,
-"volume_24h": null,
-"listings": 150219
-},
-"Paris 2023 Challengers Sticker Capsule": {
-"price": 0.1,
-"median": null,
-"volume_24h": null,
-"listings": 82507
-},
-"Paris 2023 Contenders Autograph Capsule": {
-"price": 0.12,
-"median": null,
-"volume_24h": null,
-"listings": 30758
-},
-"Paris 2023 Challengers Autograph Capsule": {
-"price": 0.12,
-"median": null,
-"volume_24h": null,
-"listings": 21874
-},
-"Paris 2023 Legends Autograph Capsule": {
-"price": 0.16,
-"median": null,
-"volume_24h": null,
-"listings": 19784
-},
-"Paris 2023 Overpass Souvenir Package": {
-"price": 2.89,
-"median": null,
-"volume_24h": null,
-"listings": 974
-},
-"Recoil Case": {
-"price": 0.27,
-"median": null,
-"volume_24h": null,
-"listings": 184698
-},
-"Revolution Case": {
-"price": 0.3,
-"median": null,
-"volume_24h": null,
-"listings": 446320
-},
-"Rio 2022 Ancient Souvenir Package": {
-"price": 7.21,
-"median": null,
-"volume_24h": null,
-"listings": 56
-},
-"Rio 2022 Contenders Sticker Capsule": {
-"price": 0.28,
-"median": null,
-"volume_24h": null,
-"listings": 7698
-},
-"Rio 2022 Contenders Autograph Capsule": {
-"price": 0.34,
-"median": null,
-"volume_24h": null,
-"listings": 1830
-},
-"Rio 2022 Legends Sticker Capsule": {
-"price": 0.36,
-"median": null,
-"volume_24h": null,
-"listings": 4029
-},
-"SG 553 | Cyrex (Field-Tested)": {
-"price": 5.03,
-"median": null,
-"volume_24h": null,
-"listings": 79
-},
-"StatTrak™ Music Kit | DRYDEN, Feel The Power": {
-"price": 2.64,
-"median": null,
-"volume_24h": null,
-"listings": 161
-},
-"StatTrak™ Music Kit | ISOxo, inhuman": {
-"price": 9.08,
-"median": null,
-"volume_24h": null,
-"listings": 76
-},
-"StatTrak™ Music Kit | Twin Atlantic, GLA": {
-"price": 1.1,
-"median": null,
-"volume_24h": null,
-"listings": 175
-},
-"Sticker | 00 Nation (Holo) | Rio 2022": {
-"price": 3.6,
-"median": null,
-"volume_24h": null,
-"listings": 113
-},
-"Sticker | 9z Team (Holo) | Rio 2022": {
-"price": 3.1,
-"median": null,
-"volume_24h": null,
-"listings": 104
-},
-"Sticker | Bad News Eagles (Holo) | Paris 2023": {
-"price": 0.37,
-"median": null,
-"volume_24h": null,
-"listings": null
-},
-"Sticker | Bad News Eagles (Holo) | Rio 2022": {
-"price": 0.94,
-"median": null,
-"volume_24h": null,
-"listings": null
-},
-"Sticker | Complexity Gaming (Holo) | Paris 2023": {
-"price": 0.98,
-"median": null,
-"volume_24h": null,
-"listings": null
-}
+  "_date": "2026-11-03",
+  "_fetched_at": "2026-11-03T06:51:08Z",
+  "AUG | Death by Puppy (Minimal Wear)": {
+    "price": 5.61,
+    "median": null,
+    "volume_24h": null,
+    "listings": 66
+  },
+  "AWP | Redline (Field-Tested)": {
+    "price": 39.99,
+    "median": null,
+    "volume_24h": null,
+    "listings": 274
+  },
+  "Antwerp 2022 Challengers Sticker Capsule": {
+    "price": 0.3,
+    "median": null,
+    "volume_24h": null,
+    "listings": 5344
+  },
+  "Antwerp 2022 Challengers Autograph Capsule": {
+    "price": 0.3,
+    "median": null,
+    "volume_24h": null,
+    "listings": 3319
+  },
+  "Rio 2022 Challengers Autograph Capsule": {
+    "price": 0.38,
+    "median": null,
+    "volume_24h": null,
+    "listings": 1244
+  },
+  "Antwerp 2022 Legends Autograph Capsule": {
+    "price": 0.36,
+    "median": null,
+    "volume_24h": null,
+    "listings": 3861
+  },
+  "Rio 2022 Challengers Sticker Capsule": {
+    "price": 0.21,
+    "median": null,
+    "volume_24h": null,
+    "listings": 9646
+  },
+  "Rio 2022 Legends Autograph Capsule": {
+    "price": 0.3,
+    "median": null,
+    "volume_24h": null,
+    "listings": 2872
+  },
+  "Budapest 2025 Challengers Autograph Capsule": {
+    "price": 0.27,
+    "median": null,
+    "volume_24h": null,
+    "listings": 3531
+  },
+  "Austin 2025 Challengers Sticker Capsule": {
+    "price": 0.19,
+    "median": null,
+    "volume_24h": null,
+    "listings": 8671
+  },
+  "Austin 2025 Contenders Autograph Capsule": {
+    "price": 0.25,
+    "median": null,
+    "volume_24h": null,
+    "listings": 2279
+  },
+  "Austin 2025 Challengers Autograph Capsule": {
+    "price": 0.27,
+    "median": null,
+    "volume_24h": null,
+    "listings": 4852
+  },
+  "Budapest 2025 Challengers Sticker Capsule": {
+    "price": 0.16,
+    "median": null,
+    "volume_24h": null,
+    "listings": 21590
+  },
+  "Austin 2025 Legends Sticker Capsule": {
+    "price": 0.19,
+    "median": null,
+    "volume_24h": null,
+    "listings": 19373
+  },
+  "Budapest 2025 Contenders Autograph Capsule": {
+    "price": 0.27,
+    "median": null,
+    "volume_24h": null,
+    "listings": 2550
+  },
+  "Nova | Hyper Beast (Minimal Wear)": {
+    "price": 18.17,
+    "median": null,
+    "volume_24h": null,
+    "listings": 52
+  },
+  "Kilowatt Case": {
+    "price": 0.15,
+    "median": null,
+    "volume_24h": null,
+    "listings": 809207
+  },
+  "Berlin 2019 Legends Autograph Capsule": {
+    "price": 1.53,
+    "median": null,
+    "volume_24h": null,
+    "listings": 1218
+  },
+  "Budapest 2025 Legends Sticker Capsule": {
+    "price": 0.18,
+    "median": null,
+    "volume_24h": null,
+    "listings": 17664
+  },
+  "Budapest 2025 Legends Autograph Capsule": {
+    "price": 0.31,
+    "median": null,
+    "volume_24h": null,
+    "listings": 7303
+  },
+  "Budapest 2025 Contenders Sticker Capsule": {
+    "price": 0.14,
+    "median": null,
+    "volume_24h": null,
+    "listings": 26517
+  },
+  "CZ75-Auto | Xiangliu (Minimal Wear)": {
+    "price": 15.53,
+    "median": null,
+    "volume_24h": null,
+    "listings": 50
+  },
+  "Chroma 2 Case": {
+    "price": 5.06,
+    "median": null,
+    "volume_24h": null,
+    "listings": 13628
+  },
+  "Copenhagen 2024 Contenders Autograph Capsule": {
+    "price": 0.2,
+    "median": null,
+    "volume_24h": null,
+    "listings": 3659
+  },
+  "G3SG1 | Flux (Battle-Scarred)": {
+    "price": 7.27,
+    "median": null,
+    "volume_24h": null,
+    "listings": 13
+  },
+  "Galil AR | Rainbow Spoon (Minimal Wear)": {
+    "price": 24.85,
+    "median": null,
+    "volume_24h": null,
+    "listings": 162
+  },
+  "Copenhagen 2024 Challengers Autograph Capsule": {
+    "price": 0.31,
+    "median": null,
+    "volume_24h": null,
+    "listings": 2802
+  },
+  "M4A1-S | Vaporwave (Field-Tested)": {
+    "price": 52.0,
+    "median": null,
+    "volume_24h": null,
+    "listings": 118
+  },
+  "Music Kit | Daniel Sadowski, Total Domination": {
+    "price": 3.52,
+    "median": null,
+    "volume_24h": null,
+    "listings": 81
+  },
+  "Music Kit | Feed Me, High Noon": {
+    "price": 3.58,
+    "median": null,
+    "volume_24h": null,
+    "listings": 95
+  },
+  "Music Kit | Various Artists, Hotline Miami": {
+    "price": 3.68,
+    "median": null,
+    "volume_24h": null,
+    "listings": 355
+  },
+  "Operation Breakout Weapon Case": {
+    "price": 10.25,
+    "median": null,
+    "volume_24h": null,
+    "listings": 16477
+  },
+  "Operation Phoenix Weapon Case": {
+    "price": 4.8,
+    "median": null,
+    "volume_24h": null,
+    "listings": 11567
+  },
+  "P90 | Vent Rush (Minimal Wear)": {
+    "price": 0.69,
+    "median": null,
+    "volume_24h": null,
+    "listings": 526
+  },
+  "Paris 2023 Contenders Sticker Capsule": {
+    "price": 0.1,
+    "median": null,
+    "volume_24h": null,
+    "listings": 183291
+  },
+  "Paris 2023 Legends Sticker Capsule": {
+    "price": 0.11,
+    "median": null,
+    "volume_24h": null,
+    "listings": 150219
+  },
+  "Paris 2023 Challengers Sticker Capsule": {
+    "price": 0.1,
+    "median": null,
+    "volume_24h": null,
+    "listings": 82507
+  },
+  "Paris 2023 Contenders Autograph Capsule": {
+    "price": 0.12,
+    "median": null,
+    "volume_24h": null,
+    "listings": 30758
+  },
+  "Paris 2023 Challengers Autograph Capsule": {
+    "price": 0.12,
+    "median": null,
+    "volume_24h": null,
+    "listings": 21874
+  },
+  "Paris 2023 Legends Autograph Capsule": {
+    "price": 0.16,
+    "median": null,
+    "volume_24h": null,
+    "listings": 19784
+  },
+  "Paris 2023 Overpass Souvenir Package": {
+    "price": 2.89,
+    "median": null,
+    "volume_24h": null,
+    "listings": 974
+  },
+  "Recoil Case": {
+    "price": 0.27,
+    "median": null,
+    "volume_24h": null,
+    "listings": 184698
+  },
+  "Revolution Case": {
+    "price": 0.3,
+    "median": null,
+    "volume_24h": null,
+    "listings": 446320
+  },
+  "Rio 2022 Ancient Souvenir Package": {
+    "price": 7.21,
+    "median": null,
+    "volume_24h": null,
+    "listings": 56
+  },
+  "Rio 2022 Contenders Sticker Capsule": {
+    "price": 0.28,
+    "median": null,
+    "volume_24h": null,
+    "listings": 7698
+  },
+  "Rio 2022 Contenders Autograph Capsule": {
+    "price": 0.34,
+    "median": null,
+    "volume_24h": null,
+    "listings": 1830
+  },
+  "Rio 2022 Legends Sticker Capsule": {
+    "price": 0.36,
+    "median": null,
+    "volume_24h": null,
+    "listings": 4029
+  },
+  "SG 553 | Cyrex (Field-Tested)": {
+    "price": 5.03,
+    "median": null,
+    "volume_24h": null,
+    "listings": 79
+  },
+  "StatTrak™ Music Kit | DRYDEN, Feel The Power": {
+    "price": 2.64,
+    "median": null,
+    "volume_24h": null,
+    "listings": 161
+  },
+  "StatTrak™ Music Kit | ISOxo, inhuman": {
+    "price": 9.08,
+    "median": null,
+    "volume_24h": null,
+    "listings": 76
+  },
+  "StatTrak™ Music Kit | Twin Atlantic, GLA": {
+    "price": 1.1,
+    "median": null,
+    "volume_24h": null,
+    "listings": 175
+  },
+  "Sticker | 00 Nation (Holo) | Rio 2022": {
+    "price": 3.6,
+    "median": null,
+    "volume_24h": null,
+    "listings": 113
+  },
+  "Sticker | 9z Team (Holo) | Rio 2022": {
+    "price": 3.1,
+    "median": null,
+    "volume_24h": null,
+    "listings": 104
+  },
+  "Sticker | Bad News Eagles (Holo) | Paris 2023": {
+    "price": 0.37,
+    "median": null,
+    "volume_24h": null,
+    "listings": null
+  },
+  "Sticker | Bad News Eagles (Holo) | Rio 2022": {
+    "price": 0.94,
+    "median": null,
+    "volume_24h": null,
+    "listings": null
+  },
+  "Sticker | Complexity Gaming (Holo) | Paris 2023": {
+    "price": 0.98,
+    "median": null,
+    "volume_24h": null,
+    "listings": null
+  },
+  "Sticker | G2 Esports (Holo) | Paris 2023": {
+    "price": 1.09,
+    "listings": 277,
+    "icon": "i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJai0ki7VeTHjNqgJ3KEtwYnp8jzuGbvThH-0MexqHQNtqL2PvVvc_bLDGSSl-shtLFtF3zilEl14G2Hntiqc3LDPFU-SswnUaBWChY"
+  },
+  "Sticker | Grayhound Gaming (Holo) | Paris 2023": {
+    "price": 0.4,
+    "listings": 602,
+    "icon": "i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJai0ki7VeTHjNqgJ3KEtwYnp8jz-Fj-fhX-kpmupCZdv6erbvM8IfSWDWXIkLgi5eQ6HXjrlx9wsT7dzNj9d3KfPAMnCowwG7AUb8woEQ"
+  }
 }
