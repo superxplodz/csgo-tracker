@@ -467,7 +467,16 @@
   const svg = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
   const initials = (n) => n.replace(/^(StatTrak™|Sticker|Music Kit) \| /, '').replace(/\(.*?\)/g, '').split(/[\s|]+/).filter((w) => /^[A-Za-z0-9]/.test(w)).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
   const thumb = (r) => {
-    if (r.icon) { const i = el('img', null, 'thumb'); i.src = /^https?:/.test(r.icon) ? r.icon : `https://community.akamai.steamstatic.com/economy/image/${r.icon}/96fx96f`; i.alt = ''; i.loading = 'lazy'; i.onerror = () => i.replaceWith(el('div', initials(r.item), 'thumb')); return i; }
+    if (r.icon) {
+      // Steam serves the same image from two CDNs; try the second before falling back to initials.
+      const url = /^https?:/.test(r.icon) ? r.icon : `https://community.akamai.steamstatic.com/economy/image/${r.icon}/96fx96f`;
+      const i = el('img', null, 'thumb'); i.alt = ''; i.loading = 'lazy'; i.referrerPolicy = 'no-referrer'; i.src = url;
+      i.onerror = () => {
+        const alt = url.replace('community.akamai.steamstatic.com', 'community.cloudflare.steamstatic.com');
+        if (i.src !== alt && alt !== url) i.src = alt; else i.replaceWith(el('div', initials(r.item), 'thumb'));
+      };
+      return i;
+    }
     return el('div', initials(r.item), 'thumb');
   };
   const itemCell = (r, sub, subCls = '') => {
