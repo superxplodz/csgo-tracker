@@ -1,22 +1,30 @@
-"""Open or seal the data file by hand.
+"""Edit the encrypted site data by hand.
 
-  SITE_PASSWORD=... python scripts/data_tool.py open    # data.enc -> data.json (do NOT commit data.json)
-  SITE_PASSWORD=... python scripts/data_tool.py seal    # data.json -> data.enc
-  OLD_PASSWORD=... SITE_PASSWORD=... python scripts/data_tool.py repass   # change password
+  SITE_PASSWORD=... python scripts/data_tool.py open     # data.enc -> data.json (never commit data.json)
+  SITE_PASSWORD=... python scripts/data_tool.py seal     # data.json -> data.enc
+  OLD_PASSWORD=... SITE_PASSWORD=... python scripts/data_tool.py repass   # change the password
 """
-import json, os, sys
-sys.path.insert(0, os.path.dirname(__file__))
-from crypto_box import encrypt, decrypt
+import json
+import os
+import sys
 
-root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-enc, plain = os.path.join(root, "data.enc"), os.path.join(root, "data.json")
-pw = os.environ["SITE_PASSWORD"]
-cmd = sys.argv[1] if len(sys.argv) > 1 else ""
-if cmd == "open":
-    json.dump(decrypt(open(enc).read(), pw), open(plain, "w"), ensure_ascii=False, indent=1)
-elif cmd == "seal":
-    open(enc, "w").write(encrypt(json.load(open(plain)), pw))
-elif cmd == "repass":
-    open(enc, "w").write(encrypt(decrypt(open(enc).read(), os.environ["OLD_PASSWORD"]), pw))
-else:
-    sys.exit(__doc__)
+from crypto_box import decrypt, encrypt
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ENC, PLAIN = os.path.join(ROOT, "data.enc"), os.path.join(ROOT, "data.json")
+
+
+def main():
+    cmd, pw = (sys.argv[1] if len(sys.argv) > 1 else ""), os.environ.get("SITE_PASSWORD", "")
+    if cmd == "open":
+        json.dump(decrypt(open(ENC).read(), pw), open(PLAIN, "w"), ensure_ascii=False, indent=1)
+    elif cmd == "seal":
+        open(ENC, "w").write(encrypt(json.load(open(PLAIN)), pw))
+    elif cmd == "repass":
+        open(ENC, "w").write(encrypt(decrypt(open(ENC).read(), os.environ["OLD_PASSWORD"]), pw))
+    else:
+        sys.exit(__doc__)
+
+
+if __name__ == "__main__":
+    main()

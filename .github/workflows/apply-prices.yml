@@ -1,8 +1,7 @@
-name: Apply fetched prices
+name: Apply prices
 
-# The daily Claude task fetches Steam prices and pushes them to incoming/prices.json
-# (plain prices only, no quantities). This job merges them into the encrypted data.enc
-# using the SITE_PASSWORD secret, so the password never leaves GitHub.
+# The daily Claude task pushes plain Steam prices to incoming/prices.json.
+# This job merges them into the encrypted data.enc with the SITE_PASSWORD secret.
 on:
   push:
     branches: [main]
@@ -14,31 +13,23 @@ permissions:
 
 concurrency:
   group: apply-prices
-  cancel-in-progress: false
 
 jobs:
   apply:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: pip install cryptography==44.0.0
-      - name: Merge prices into data.enc
+      - run: python scripts/apply_prices.py
         env:
           SITE_PASSWORD: ${{ secrets.SITE_PASSWORD }}
-          PRICES_FILE: incoming/prices.json
-          FRESH_HOURS: "0"
-        run: |
-          python scripts/update_prices.py
-          python scripts/update_prices.py --items items.txt
-      - name: Commit
-        run: |
+      - run: |
           git config user.name "price-bot"
           git config user.email "price-bot@users.noreply.github.com"
           git add data.enc items.txt
-          git diff --cached --quiet || git commit -m "Apply Steam prices $(TZ=Asia/Jakarta date +%F)"
-          git pull --rebase
-          git push
+          git diff --cached --quiet || git commit -m "Apply prices $(TZ=Asia/Jakarta date +%F)"
+          git pull --rebase && git push
