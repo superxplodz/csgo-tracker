@@ -8,7 +8,7 @@ Password-protected portfolio site at **https://skins.bekasibro.my.id**, served b
 | `data.enc` | Holdings, prices, sales and value history, AES-256-GCM encrypted. |
 | `items.txt` | Item names only, for the daily price fetch. |
 | `incoming/prices.json` | Latest fetched prices (plain), pushed by the daily task. |
-| `scripts/apply_prices.py` | Merges `incoming/prices.json` into `data.enc`. |
+| `scripts/apply_prices.py` | Merges `incoming/prices.json` into `data.enc`, and flags differences with the public Steam inventory. |
 | `scripts/trade.py` | Record a buy or sell (updates holdings, sales and `items.txt`). |
 | `scripts/data_tool.py` | Open, edit and re-seal `data.enc` by hand, or change the password. |
 | `scripts/crypto_box.py` | Encryption shared by both scripts (browser-compatible). |

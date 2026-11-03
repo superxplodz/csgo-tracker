@@ -283,6 +283,12 @@
         <div class="card-head"><div><h2 class="card-title">Sell targets reached</h2><p class="card-sub">Items at or above the target you set</p></div></div>
         <ul class="list" id="targetsList"></ul>
       </div>
+      <div class="card" id="invCard" hidden>
+        <div class="card-head"><div><h2 class="card-title">Check against Steam inventory</h2>
+          <p class="card-sub" id="invSub"></p></div></div>
+        <ul class="list" id="invList" style="max-height:320px;overflow:auto"></ul>
+        <p class="card-sub" style="margin-top:var(--s-3)">Nothing changes automatically. Tell Claude in chat which ones were sold or bought.</p>
+      </div>
       <div class="grid-2 even">
         <div class="card"><div class="card-head"><div><h2 class="card-title">Top gainers</h2><p class="card-sub">Profit vs what you paid</p></div></div><ul class="list" id="gainers"></ul></div>
         <div class="card"><div class="card-head"><div><h2 class="card-title">Top losers</h2><p class="card-sub">Loss vs what you paid</p></div></div><ul class="list" id="losers"></ul></div>
@@ -322,9 +328,24 @@
     <section class="page" id="tab-sales" role="tabpanel" hidden>
       <div class="page-head"><div><h1 class="page-title">Sales</h1><p class="page-sub" id="salesSub"></p></div></div>
       <div class="card">
+        <div class="tools">
+          <div class="search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <input class="input" id="sq" type="search" placeholder="Search sales" aria-label="Search sales">
+          </div>
+          <select class="sort-select" id="sSortSel" aria-label="Sort by">
+            <option value="sold_on:-1">Newest first</option><option value="sold_on:1">Oldest first</option>
+            <option value="realized:-1">Profit: high to low</option><option value="realized:1">Profit: low to high</option><option value="item:1">Name: A to Z</option>
+          </select>
+          <div class="chips" id="schips" role="group" aria-label="Filter sales"></div>
+        </div>
         <div class="table-wrap">
           <table class="stack" id="salesTable">
-            <thead><tr><th class="l"><span>Item</span></th><th><span>Sold</span></th><th><span>Qty</span></th><th><span>Buy</span></th><th><span>Sale</span></th><th><span>Fee</span></th><th><span>Profit</span></th></tr></thead>
+            <thead><tr>
+              <th class="l" data-k="item"><button>Item</button></th><th data-k="sold_on" aria-sort="descending"><button>Sold</button></th>
+              <th data-k="qty"><button>Qty</button></th><th data-k="buy"><button>Buy</button></th><th data-k="sale"><button>Sale</button></th>
+              <th data-k="fee_pct"><button>Fee</button></th><th data-k="realized"><button>Profit</button></th>
+            </tr></thead>
             <tbody></tbody>
           </table>
         </div>
@@ -506,7 +527,6 @@
     setKpi('kPnl', susd(pnl), tone(pnl)); $('kPnlPct').textContent = spct(cost ? pnl / cost : 0) + ' vs cost';
     setKpi('kCost', usd(cost)); setKpi('kAfter', usd(value / 1.15)); setKpi('kReal', susd(realized), tone(realized));
     $('holdSub').textContent = `${nf0.format(units)} items · ${pos.length} different · ${usd(value)}`;
-    $('salesSub').textContent = `${db.sales.length} sales · ${susd(realized)} realized profit`;
 
     const upd = db.updated_at ? new Date(db.updated_at).toLocaleString('en-GB', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' WIB' : '—';
     $('updated').textContent = 'Updated ' + upd;
@@ -518,7 +538,8 @@
     drawMovers(pos);
     drawTargets(pos);
     setupHoldings(pos);
-    drawSales(db.sales, icons);
+    setupSales(db.sales, icons);
+    drawInventory(db.inventory_check, icons);
   }
 
   function drawTrend(hist) {
@@ -591,24 +612,11 @@
   }
 
   function setupHoldings(pos) {
-    const st = { sort: 'value', dir: -1, q: '', cat: '' };
-    const chips = $('chips'); chips.replaceChildren();
-    ['', ...[...new Set(pos.map((r) => r.category))].sort()].forEach((c) => {
-      const b = el('button', c || 'All', 'chip'); b.type = 'button'; b.setAttribute('aria-pressed', String(!c)); chips.append(b);
-      b.addEventListener('click', () => { st.cat = c; chips.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); draw(); });
-    });
-    $('q').oninput = (e) => { st.q = e.target.value.trim().toLowerCase(); draw(); };
-    const setSort = (k, dir) => {
-      st.sort = k; st.dir = dir;
-      document.querySelectorAll('#posTable th').forEach((h) => (h.dataset.k === k ? h.setAttribute('aria-sort', dir > 0 ? 'ascending' : 'descending') : h.removeAttribute('aria-sort')));
-      draw();
-    };
-    document.querySelectorAll('#posTable th[data-k] button').forEach((b) => b.onclick = () => { const k = b.parentNode.dataset.k; setSort(k, st.sort === k ? -st.dir : (k === 'item' ? 1 : -1)); });
-    $('sortSel').onchange = (e) => { const [k, d] = e.target.value.split(':'); setSort(k, +d); };
+    const st = { sort: 'value', dir: -1, q: '', filter: '' };
+    const chipList = [['', 'All'], ...[...new Set(pos.map((r) => r.category))].sort().map((c) => [c, c])];
     const td = (content, cls, label) => { const c = el('td', typeof content === 'string' ? content : null, cls); if (typeof content !== 'string') c.append(content); if (label) c.dataset.label = label; return c; };
     function draw() {
-      const rows = pos.filter((r) => (!st.cat || r.category === st.cat) && (!st.q || r.item.toLowerCase().includes(st.q)))
-        .sort((a, b) => { const va = a[st.sort], vb = b[st.sort]; return typeof va === 'string' ? st.dir * va.localeCompare(vb) : st.dir * ((va ?? -Infinity) - (vb ?? -Infinity)); });
+      const rows = sortRows(pos.filter((r) => (!st.filter || r.category === st.filter) && (!st.q || r.item.toLowerCase().includes(st.q))), st.sort, st.dir);
       const body = document.querySelector('#posTable tbody');
       if (!rows.length) { const tr = el('tr'); const c = el('td', 'No items match.', 'empty'); c.colSpan = 8; tr.append(c); return body.replaceChildren(tr); }
       body.replaceChildren(...rows.map((r) => {
@@ -620,6 +628,9 @@
         return tr;
       }));
     }
+    $('q').value = ''; $('q').oninput = (e) => { st.q = e.target.value.trim().toLowerCase(); draw(); };
+    $('sortSel').value = 'value:-1';
+    wireTable('posTable', 'sortSel', 'chips', chipList, st, draw);
     draw();
   }
 
@@ -683,14 +694,70 @@
     series.forEach((p) => svg('circle', { cx: x(p[0]), cy: y(p[1]), r: series.length < 20 ? 3 : 0, class: 'd-value' }, s));
   }
 
-  function drawSales(sales, icons) {
+  // Shared filter/sort mechanics for the Holdings and Sales tables.
+  function sortRows(rows, k, dir) {
+    return rows.sort((a, b) => { const va = a[k], vb = b[k]; return typeof va === 'string' ? dir * va.localeCompare(vb) : dir * ((va ?? -Infinity) - (vb ?? -Infinity)); });
+  }
+  function wireTable(tableId, selId, chipsId, chipList, st, draw) {
+    const chips = $(chipsId); chips.replaceChildren();
+    chipList.forEach(([val, label]) => {
+      const b = el('button', label, 'chip'); b.type = 'button'; b.setAttribute('aria-pressed', String(val === st.filter)); chips.append(b);
+      b.addEventListener('click', () => { st.filter = val; chips.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', String(x === b))); draw(); });
+    });
+    const setSort = (k, dir) => {
+      st.sort = k; st.dir = dir;
+      document.querySelectorAll(`#${tableId} th`).forEach((h) => (h.dataset.k === k ? h.setAttribute('aria-sort', dir > 0 ? 'ascending' : 'descending') : h.removeAttribute('aria-sort')));
+      draw();
+    };
+    document.querySelectorAll(`#${tableId} th[data-k] button`).forEach((b) => b.onclick = () => { const k = b.parentNode.dataset.k; setSort(k, st.sort === k ? -st.dir : (k === 'item' ? 1 : -1)); });
+    $(selId).onchange = (e) => { const [k, d] = e.target.value.split(':'); setSort(k, +d); };
+  }
+
+  function setupSales(sales, icons) {
+    const st = { sort: 'sold_on', dir: -1, q: '', filter: '' };
+    const rows0 = sales.map((r) => ({ ...r, qty: +r.qty, buy: +r.buy, sale: +r.sale, fee_pct: +r.fee_pct, realized: +r.realized }));
+    const cats = [...new Set(rows0.map((r) => r.category))].sort();
+    const chipList = [['', 'All'], ['win', 'Profit'], ['loss', 'Loss'], ...cats.map((c) => ['cat:' + c, c])];
     const td = (content, cls, label) => { const c = el('td', typeof content === 'string' ? content : null, cls); if (typeof content !== 'string') c.append(content); if (label) c.dataset.label = label; return c; };
-    document.querySelector('#salesTable tbody').replaceChildren(...[...sales].sort((a, b) => (a.sold_on < b.sold_on ? 1 : -1)).map((r) => {
-      const tr = el('tr'), v = +r.realized;
-      tr.append(td(itemCell({ item: r.item, icon: icons.get(r.item) }, fmtDay(r.sold_on), 'narrow-only'), 'l'), td(fmtDay(r.sold_on), 'muted wide-only'),
-        td(nf0.format(r.qty), '', 'Qty'), td(usd(r.buy), 'muted wide-only'), td(usd(r.sale), '', 'Sale'), td(r.fee_pct + '%', 'muted wide-only'),
-        td(susd(v), 'r ' + tone(v)));
-      return tr;
+    const match = (r) => (!st.q || r.item.toLowerCase().includes(st.q)) &&
+      (!st.filter || (st.filter === 'win' ? r.realized > 0 : st.filter === 'loss' ? r.realized < 0 : r.category === st.filter.slice(4)));
+    function draw() {
+      const rows = sortRows(rows0.filter(match), st.sort, st.dir);
+      const total = rows.reduce((s, r) => s + r.realized, 0);
+      $('salesSub').textContent = `${rows.length} of ${rows0.length} sales · ${susd(total)} realized profit`;
+      const body = document.querySelector('#salesTable tbody');
+      if (!rows.length) { const tr = el('tr'); const c = el('td', 'No sales match.', 'empty'); c.colSpan = 7; tr.append(c); return body.replaceChildren(tr); }
+      body.replaceChildren(...rows.map((r) => {
+        const tr = el('tr');
+        tr.append(td(itemCell({ item: r.item, icon: icons.get(r.item) }, fmtDay(r.sold_on), 'narrow-only'), 'l'), td(fmtDay(r.sold_on), 'muted wide-only'),
+          td(nf0.format(r.qty), '', 'Qty'), td(usd(r.buy), 'muted wide-only'), td(usd(r.sale), '', 'Sale'), td(r.fee_pct + '%', 'muted wide-only'),
+          td(susd(r.realized), 'r ' + tone(r.realized)));
+        return tr;
+      }));
+    }
+    $('sq').value = ''; $('sq').oninput = (e) => { st.q = e.target.value.trim().toLowerCase(); draw(); };
+    $('sSortSel').value = 'sold_on:-1';
+    wireTable('salesTable', 'sSortSel', 'schips', chipList, st, draw);
+    draw();
+  }
+
+  function drawInventory(check, icons) {
+    const card = $('invCard');
+    if (!check) { card.hidden = true; return; }
+    const diffs = [...(check.fewer || []).map((r) => ({ ...r, kind: 'fewer' })), ...(check.untracked || []).map((r) => ({ ...r, kind: 'new' }))];
+    const when = check.at ? new Date(check.at).toLocaleString('en-GB', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' WIB' : null;
+    if (check.status !== 'ok' && !when) {
+      card.hidden = false; $('invList').replaceChildren();
+      $('invSub').textContent = "Couldn't read your Steam inventory. Check that it's set to Public in Steam privacy settings.";
+      return;
+    }
+    card.hidden = !diffs.length;
+    $('invSub').textContent = `${diffs.length} item${diffs.length === 1 ? '' : 's'} differ from your public inventory (checked ${when}). Items in storage units don't show in the inventory, so they appear here too.`;
+    $('invList').replaceChildren(...diffs.map((r) => {
+      const li = el('li');
+      const v = el('div', null, 'val'); v.append(el('div', r.kind === 'fewer' ? `${nf0.format(r.in_inventory)} of ${nf0.format(r.held)}` : `+${nf0.format(r.in_inventory - r.held)}`),
+        el('div', r.kind === 'fewer' ? 'in inventory vs tracked' : 'not tracked yet', 'cat'));
+      li.append(thumb({ item: r.item, icon: icons.get(r.item) }), el('span', r.item, 'name'), v); return li;
     }));
   }
 })();

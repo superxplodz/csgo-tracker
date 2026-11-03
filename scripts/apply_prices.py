@@ -5,6 +5,8 @@ Input:  incoming/prices.json  {"_date": "YYYY-MM-DD", "_fetched_at": ISO,
 Also fetches (best effort, skipped on any error):
   - Skinport lowest listing per item  (second price source)
   - USD -> IDR exchange rate
+  - Steam inventory check: compares the public inventory with holdings and flags
+    differences for review (it never changes holdings)
 Output: data.enc (prices, per-item price history, daily value history) and items.txt.
 Needs:  SITE_PASSWORD environment variable.
 """
@@ -50,6 +52,29 @@ def usd_idr():
         return None
 
 
+def inventory_check(steam_id, holdings, previous):
+    """Count marketable CS2 items in the public inventory and list differences with holdings."""
+    url = f"https://steamcommunity.com/inventory/{steam_id}/730/2?l=english&count=2000"
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    try:
+        inv = get_json(url)
+    except Exception as e:
+        print(f"Inventory skipped: {e}")
+        return {**(previous or {}), "status": f"error: {e}", "tried_at": now}
+    names = {(d["classid"], d["instanceid"]): d["market_hash_name"] for d in inv.get("descriptions", []) if d.get("marketable")}
+    counts = {}
+    for a in inv.get("assets", []):
+        n = names.get((a["classid"], a["instanceid"]))
+        if n:
+            counts[n] = counts.get(n, 0) + int(a.get("amount", 1))
+    held = {h["item"]: h["qty"] for h in holdings}
+    fewer = [{"item": n, "held": q, "in_inventory": counts.get(n, 0)} for n, q in held.items() if counts.get(n, 0) < q]
+    untracked = [{"item": n, "in_inventory": c, "held": held.get(n, 0)} for n, c in counts.items() if c > held.get(n, 0)]
+    print(f"Inventory: {sum(counts.values())} marketable items, {len(fewer)} fewer than held, {len(untracked)} untracked")
+    return {"status": "ok", "at": now, "tried_at": now, "fewer": sorted(fewer, key=lambda r: r["item"]),
+            "untracked": sorted(untracked, key=lambda r: r["item"])}
+
+
 def main():
     password = os.environ["SITE_PASSWORD"]
     db = decrypt(open(DATA, encoding="utf-8").read(), password)
@@ -81,6 +106,8 @@ def main():
            "items": sum(h["qty"] for h in db["holdings"])}
     history = sorted([r for r in db.get("history", []) if r["day"] != day] + [row], key=lambda r: r["day"])
 
+    if db.get("steam_id"):
+        db["inventory_check"] = inventory_check(db["steam_id"], db["holdings"], db.get("inventory_check"))
     rate = usd_idr()
     if rate:
         db["fx"] = {"IDR": rate, "at": now}
