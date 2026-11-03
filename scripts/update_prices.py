@@ -13,7 +13,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data.enc")
 URL = "https://steamcommunity.com/market/priceoverview/?appid=730&currency=1&market_hash_name="
 DELAY = float(os.environ.get("STEAM_DELAY", "6"))  # seconds between calls; Steam allows ~20/min per IP
-FRESH_HOURS = 20       # items priced within this window are skipped, so each run only does what's left
+FRESH_HOURS = float(os.environ.get("FRESH_HOURS", "20"))  # items priced within this window are skipped, so each run only does what's left
 MAX_429_STREAK = 3     # after this many rate-limits in a row, stop and save; the next run continues
 
 
@@ -74,6 +74,11 @@ def main():
     if not pw:
         sys.exit("SITE_PASSWORD is not set")
     db = decrypt(open(DATA, encoding="utf-8").read(), pw)
+    if "--items" in sys.argv:  # write the plain list of item names (no quantities or prices) for the daily fetcher
+        out = sys.argv[sys.argv.index("--items") + 1]
+        open(out, "w", encoding="utf-8").write("\n".join(h["item"] for h in db["holdings"]) + "\n")
+        print(f"Wrote {len(db['holdings'])} item names to {out}")
+        return
     old = {p["item"]: p for p in db.get("prices", [])}
     now_dt = datetime.now(timezone.utc)
     now = now_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
