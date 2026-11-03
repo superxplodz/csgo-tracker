@@ -467,7 +467,7 @@
   const svg = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; };
   const initials = (n) => n.replace(/^(StatTrak™|Sticker|Music Kit) \| /, '').replace(/\(.*?\)/g, '').split(/[\s|]+/).filter((w) => /^[A-Za-z0-9]/.test(w)).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
   const thumb = (r) => {
-    if (r.icon) { const i = el('img', null, 'thumb'); i.src = `https://community.akamai.steamstatic.com/economy/image/${r.icon}/96fx96f`; i.alt = ''; i.loading = 'lazy'; i.onerror = () => i.replaceWith(el('div', initials(r.item), 'thumb')); return i; }
+    if (r.icon) { const i = el('img', null, 'thumb'); i.src = /^https?:/.test(r.icon) ? r.icon : `https://community.akamai.steamstatic.com/economy/image/${r.icon}/96fx96f`; i.alt = ''; i.loading = 'lazy'; i.onerror = () => i.replaceWith(el('div', initials(r.item), 'thumb')); return i; }
     return el('div', initials(r.item), 'thumb');
   };
   const itemCell = (r, sub, subCls = '') => {
@@ -509,9 +509,9 @@
     const pos = db.holdings.map((h) => {
       const p = pmap.get(h.item) || {}, price = Number(p.price) || 0, value = Math.round(price * h.qty * 100) / 100;
       return { ...h, price, value, pnl: Math.round((value - h.cost) * 100) / 100, pnl_pct: h.cost > 0 ? (value - h.cost) / h.cost : null,
-        icon: p.icon, stale: !!p.stale, skinport: p.skinport, series: (db.item_history || {})[h.item] || [] };
+        icon: p.icon || (db.icons || {})[h.item], stale: !!p.stale, skinport: p.skinport, series: (db.item_history || {})[h.item] || [] };
     });
-    const icons = new Map(pos.map((r) => [r.item, r.icon]));
+    const icons = new Map([...Object.entries(db.icons || {}), ...pos.filter((r) => r.icon).map((r) => [r.item, r.icon])]);
     const value = pos.reduce((s, r) => s + r.value, 0), cost = pos.reduce((s, r) => s + r.cost, 0), pnl = value - cost;
     const realized = db.sales.reduce((s, r) => s + Number(r.realized), 0);
     const units = pos.reduce((s, r) => s + r.qty, 0);
