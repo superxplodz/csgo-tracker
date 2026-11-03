@@ -9,10 +9,14 @@ Private tracker for a CS2 skin portfolio, hosted on GitHub Pages at
 - `scripts/update_prices.py` pulls the lowest listing price for each item from the Steam
   Community Market, adds a row to the value history and rewrites `data.enc`. Items priced in
   the last 20 hours are skipped, so a run that Steam rate-limits is finished by the next run.
-- Daily prices come from a **Claude scheduled task** (06:47 WIB). It runs
-  `update_prices.py --list` to see which items need a price, fetches them from Steam,
-  then runs `PRICES_FILE=fetched.json update_prices.py` and pushes `data.enc`.
-  GitHub's servers get rate-limited by Steam, so the GitHub Action is manual-only, as a backup.
+- Daily prices come from a **Claude scheduled task** (06:47 and 13:47 WIB). It reads
+  `items.txt` (item names only), looks each one up with Steam's market search, and pushes
+  plain prices to `incoming/prices.json`. It never sees the password.
+- `.github/workflows/apply-prices.yml` runs on that push. It merges the prices into
+  `data.enc` using the `SITE_PASSWORD` secret and refreshes `items.txt`. Items without a new
+  price keep their previous one and show in orange on the site.
+- `update-prices.yml` (direct Steam fetch from GitHub) is manual-only, because Steam
+  rate-limits GitHub's servers.
 
 ## One-time setup
 
