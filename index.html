@@ -186,6 +186,29 @@
     .stack td.wide-only { display: none; }
   }
   @media (min-width: 701px) { .narrow-only { display: none !important; } }
+  .spark { display: block; }
+  .spark path { fill: none; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+  .target-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--pos); margin-right: 6px; vertical-align: middle; }
+  tbody tr.clickable { cursor: pointer; }
+  .cur-btn { font-weight: 600; font-size: var(--fs-xs); width: auto; padding: 0 var(--s-3); }
+  /* Item detail dialog */
+  dialog.sheet { border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--surface); color: var(--text); padding: 0;
+    width: min(560px, calc(100vw - 24px)); max-height: calc(100vh - 48px); box-shadow: 0 24px 64px rgba(0,0,0,.4); }
+  dialog.sheet::backdrop { background: rgba(0,0,0,.55); backdrop-filter: blur(2px); }
+  .sheet-head { display: flex; gap: var(--s-4); align-items: center; padding: var(--s-5); border-bottom: 1px solid var(--border); }
+  .sheet-head .thumb { width: 96px; height: 72px; }
+  .sheet-head h2 { font-size: var(--fs-lg); margin: 0; line-height: 1.3; }
+  .sheet-body { padding: var(--s-5); display: flex; flex-direction: column; gap: var(--s-5); overflow: auto; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--s-3); }
+  .stat { background: var(--surface-2); border-radius: var(--r-md); padding: var(--s-3); }
+  .stat .k { font-size: var(--fs-xs); color: var(--muted); }
+  .stat .v { font-size: var(--fs-lg); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .stat .h { font-size: var(--fs-xs); color: var(--subtle); }
+  .sheet h3 { font-size: var(--fs-sm); margin: 0 0 var(--s-2); color: var(--muted); font-weight: 500; }
+  .target-row { display: flex; gap: var(--s-2); align-items: center; }
+  .target-row .input { max-width: 160px; padding: var(--s-2) var(--s-3); }
+  .close-x { margin-left: auto; align-self: flex-start; }
+  @media (max-width: 700px) { dialog.sheet { margin: auto auto 0; width: 100vw; max-width: 100vw; border-radius: var(--r-lg) var(--r-lg) 0 0; } }
   footer { color: var(--subtle); font-size: var(--fs-xs); padding-top: var(--s-4); }
   @media (prefers-reduced-motion: no-preference) { .page:not([hidden]) { animation: in .25s ease-out; } @keyframes in { from { opacity: 0; transform: translateY(4px); } } }
 </style>
@@ -222,6 +245,7 @@
       </nav>
       <div class="top-right">
         <span class="updated" id="updated"></span>
+        <button class="btn icon-btn cur-btn" id="curBtn" type="button" title="Switch currency">USD</button>
         <button class="btn icon-btn" id="themeBtn" type="button" aria-label="Theme"></button>
         <button class="btn icon-btn" id="logout" type="button" aria-label="Lock" title="Lock">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
@@ -255,6 +279,10 @@
           <div class="chart" id="cats"></div>
         </div>
       </div>
+      <div class="card" id="targetsCard" hidden>
+        <div class="card-head"><div><h2 class="card-title">Sell targets reached</h2><p class="card-sub">Items at or above the target you set</p></div></div>
+        <ul class="list" id="targetsList"></ul>
+      </div>
       <div class="grid-2 even">
         <div class="card"><div class="card-head"><div><h2 class="card-title">Top gainers</h2><p class="card-sub">Profit vs what you paid</p></div></div><ul class="list" id="gainers"></ul></div>
         <div class="card"><div class="card-head"><div><h2 class="card-title">Top losers</h2><p class="card-sub">Loss vs what you paid</p></div></div><ul class="list" id="losers"></ul></div>
@@ -280,13 +308,13 @@
           <table class="stack" id="posTable">
             <thead><tr>
               <th class="l" data-k="item"><button>Item</button></th><th data-k="qty"><button>Qty</button></th><th data-k="avg_buy"><button>Avg buy</button></th>
-              <th data-k="price"><button>Price</button></th><th data-k="value" aria-sort="descending"><button>Value</button></th>
+              <th data-k="price"><button>Price</button></th><th class="wide-only"><span>30 days</span></th><th data-k="value" aria-sort="descending"><button>Value</button></th>
               <th data-k="pnl"><button>Profit</button></th><th data-k="pnl_pct"><button>Profit %</button></th>
             </tr></thead>
             <tbody></tbody>
           </table>
         </div>
-        <p class="card-sub" style="margin-top:var(--s-3)"><span class="warn">Orange</span> prices are from an earlier update because Steam didn't return one this time.</p>
+        <p class="card-sub" style="margin-top:var(--s-3)">Tap an item for details and a sell target. <span class="warn">Orange</span> prices are from an earlier update.</p>
       </div>
     </section>
 
@@ -305,6 +333,28 @@
 
     <footer id="footer"></footer>
   </main>
+
+  <dialog class="sheet" id="sheet" aria-labelledby="sheetTitle">
+    <div class="sheet-head">
+      <div id="sheetThumb"></div>
+      <div style="min-width:0"><h2 id="sheetTitle"></h2><span class="cat" id="sheetCat"></span></div>
+      <button class="btn icon-btn close-x" id="sheetClose" type="button" aria-label="Close">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div class="stats" id="sheetStats"></div>
+      <div><h3>Steam price history</h3><div class="chart" id="sheetChart"></div></div>
+      <div>
+        <h3>Sell target (USD per item)</h3>
+        <div class="target-row">
+          <input class="input" id="targetInput" type="number" min="0" step="0.01" inputmode="decimal" placeholder="e.g. 0.50">
+          <button class="btn" id="targetSave" type="button">Save</button>
+          <button class="btn" id="targetClear" type="button">Clear</button>
+        </div>
+        <p class="card-sub" id="targetNote"></p>
+      </div>
+      <a class="item" id="sheetLink" target="_blank" rel="noopener">Open on Steam Market ↗</a>
+    </div>
+  </dialog>
 </div>
 
 <script>
@@ -377,8 +427,16 @@
   // ---------- Helpers ----------
   const nf2 = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const nf0 = new Intl.NumberFormat('en-US');
-  const usd = (v) => '$' + nf2.format(v);
-  const susd = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + '$' + nf2.format(Math.abs(v));
+  // Currency: values are stored in USD, shown in USD or IDR.
+  const CUR_KEY = 'cs2pf-cur';
+  let CUR = 'USD', RATE = 1;
+  try { CUR = localStorage.getItem(CUR_KEY) || 'USD'; } catch (e) {}
+  const idr = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 });
+  const idrShort = new Intl.NumberFormat('id-ID', { notation: 'compact', maximumFractionDigits: 1 });
+  const usd = (v) => (CUR === 'IDR' ? 'Rp' + idr.format(v * RATE) : '$' + nf2.format(v));
+  const susd = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + usd(Math.abs(v));
+  const axis = (v) => (CUR === 'IDR' ? 'Rp' + idrShort.format(v * RATE) : '$' + nf0.format(v));
+  const usdOnly = (v) => '$' + nf2.format(v);
   const spct = (v) => (v > 0 ? '+' : v < 0 ? '−' : '') + (Math.abs(v) * 100).toFixed(1) + '%';
   const tone = (v) => (v > 0 ? 'pos' : v < 0 ? 'neg' : 'flat');
   const fmtDay = (d, year = true) => new Date(d + 'T00:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', ...(year ? { year: 'numeric' } : {}), timeZone: 'UTC' });
@@ -398,12 +456,39 @@
     wrap.append(thumb(r), meta); return wrap;
   };
 
+  // Sell targets live on this device (USD per item).
+  const TGT_KEY = 'cs2pf-targets';
+  let targets = {};
+  try { targets = JSON.parse(localStorage.getItem(TGT_KEY) || '{}'); } catch (e) {}
+  const saveTargets = () => { try { localStorage.setItem(TGT_KEY, JSON.stringify(targets)); } catch (e) {} };
+  const hitTarget = (r) => targets[r.item] != null && r.price >= targets[r.item];
+
+  const sparkline = (series, w = 90, h = 26) => {
+    const pts = (series || []).slice(-30);
+    if (pts.length < 2) return el('span', '—', 'muted');
+    const vals = pts.map((p) => p[1]), lo = Math.min(...vals), hi = Math.max(...vals), span = hi - lo || 1;
+    const s = svg('svg', { width: w, height: h, viewBox: `0 0 ${w} ${h}`, class: 'spark', 'aria-hidden': 'true' });
+    const d = vals.map((v, i) => (i ? 'L' : 'M') + (i / (vals.length - 1) * (w - 2) + 1).toFixed(1) + ',' + (h - 2 - (v - lo) / span * (h - 4)).toFixed(1)).join('');
+    svg('path', { d, style: `stroke:var(${vals.at(-1) >= vals[0] ? '--pos' : '--neg'})` }, s);
+    return s;
+  };
+
   // ---------- Render ----------
+  let DB = null, resizeHooked = false;
+  $('curBtn').addEventListener('click', () => {
+    CUR = CUR === 'USD' ? 'IDR' : 'USD';
+    try { localStorage.setItem(CUR_KEY, CUR); } catch (e) {}
+    if (DB) { render(DB); if (!$('tab-overview').hidden) redrawCharts(); }
+  });
   function render(db) {
+    DB = db;
+    RATE = CUR === 'IDR' ? (db.fx?.IDR || 16000) : 1;
+    $('curBtn').textContent = CUR;
     const pmap = new Map(db.prices.map((p) => [p.item, p]));
     const pos = db.holdings.map((h) => {
       const p = pmap.get(h.item) || {}, price = Number(p.price) || 0, value = Math.round(price * h.qty * 100) / 100;
-      return { ...h, price, value, pnl: Math.round((value - h.cost) * 100) / 100, pnl_pct: h.cost > 0 ? (value - h.cost) / h.cost : null, icon: p.icon, stale: !!p.stale };
+      return { ...h, price, value, pnl: Math.round((value - h.cost) * 100) / 100, pnl_pct: h.cost > 0 ? (value - h.cost) / h.cost : null,
+        icon: p.icon, stale: !!p.stale, skinport: p.skinport, series: (db.item_history || {})[h.item] || [] };
     });
     const icons = new Map(pos.map((r) => [r.item, r.icon]));
     const value = pos.reduce((s, r) => s + r.value, 0), cost = pos.reduce((s, r) => s + r.cost, 0), pnl = value - cost;
@@ -427,9 +512,11 @@
     $('updated').textContent = 'Updated ' + upd;
     $('footer').textContent = `Prices from the Steam Community Market. Last update ${upd}.`;
 
+    if (CUR === 'IDR' && db.fx) $('footer').textContent += ` 1 USD = Rp${idr.format(db.fx.IDR)}.`;
     redrawCharts = () => { drawTrend(hist); drawCats(pos); };
-    let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => { if (!$('tab-overview').hidden) redrawCharts(); }, 150); });
+    if (!resizeHooked) { resizeHooked = true; let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => { if (!$('tab-overview').hidden) redrawCharts(); }, 150); }); }
     drawMovers(pos);
+    drawTargets(pos);
     setupHoldings(pos);
     drawSales(db.sales, icons);
   }
@@ -444,12 +531,12 @@
     lo = Math.max(0, Math.floor(lo / step) * step); hi = Math.ceil(hi / step) * step;
     const ticks = []; for (let v = lo; v <= hi + 1e-9; v += step) ticks.push(v);
     const s = svg('svg', { width: '100%', viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Portfolio value over time' }, box);
-    let L = 0; ticks.forEach((v) => { const x = svg('text', {}, s); x.textContent = '$' + nf0.format(v); L = Math.max(L, x.getComputedTextLength()); x.remove(); }); L += 12;
+    let L = 0; ticks.forEach((v) => { const x = svg('text', {}, s); x.textContent = axis(v); L = Math.max(L, x.getComputedTextLength()); x.remove(); }); L += 12;
     let t0 = rows[0].t, t1 = rows[rows.length - 1].t; if (t0 === t1) { t0 -= 3 * 864e5; t1 += 3 * 864e5; }
     const x = (t) => L + 8 + (t - t0) / (t1 - t0) * (R - L - 16), y = (v) => H - B - (v - lo) / (hi - lo) * (H - B - T);
     const g = svg('linearGradient', { id: 'fill', x1: 0, y1: 0, x2: 0, y2: 1 }, svg('defs', {}, s));
     [[0, .28], [.6, .06], [1, 0]].forEach(([o, a]) => svg('stop', { offset: o, style: `stop-color:var(--accent);stop-opacity:${a}` }, g));
-    ticks.forEach((v) => { svg('line', { x1: L, x2: R, y1: y(v), y2: y(v), class: 'grid' }, s); svg('text', { x: L - 10, y: y(v) + 4, 'text-anchor': 'end' }, s).textContent = '$' + nf0.format(v); });
+    ticks.forEach((v) => { svg('line', { x1: L, x2: R, y1: y(v), y2: y(v), class: 'grid' }, s); svg('text', { x: L - 10, y: y(v) + 4, 'text-anchor': 'end' }, s).textContent = axis(v); });
     const n = Math.max(2, Math.min(rows.length, Math.floor((R - L) / 90)));
     for (let i = 0; i < n; i++) { const tt = t0 + (t1 - t0) * i / (n - 1); svg('text', { x: x(tt), y: H - 6, 'text-anchor': i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle' }, s).textContent = new Date(tt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }); }
     const pts = (k) => rows.map((r) => [x(r.t), y(r[k])]), d = (p) => p.map((q, i) => (i ? 'L' : 'M') + q[0].toFixed(1) + ',' + q[1].toFixed(1)).join('');
@@ -523,16 +610,77 @@
       const rows = pos.filter((r) => (!st.cat || r.category === st.cat) && (!st.q || r.item.toLowerCase().includes(st.q)))
         .sort((a, b) => { const va = a[st.sort], vb = b[st.sort]; return typeof va === 'string' ? st.dir * va.localeCompare(vb) : st.dir * ((va ?? -Infinity) - (vb ?? -Infinity)); });
       const body = document.querySelector('#posTable tbody');
-      if (!rows.length) { const tr = el('tr'); const c = el('td', 'No items match.', 'empty'); c.colSpan = 7; tr.append(c); return body.replaceChildren(tr); }
+      if (!rows.length) { const tr = el('tr'); const c = el('td', 'No items match.', 'empty'); c.colSpan = 8; tr.append(c); return body.replaceChildren(tr); }
       body.replaceChildren(...rows.map((r) => {
-        const tr = el('tr');
+        const tr = el('tr', null, 'clickable');
+        tr.addEventListener('click', (e) => { if (!e.target.closest('a')) openSheet(r); });
         tr.append(td(itemCell(r, r.category), 'l'), td(nf0.format(r.qty), '', 'Qty'), td(usd(r.avg_buy), 'muted wide-only'),
-          td(usd(r.price), 'r' + (r.stale ? ' warn' : ''), 'Price'), td(usd(r.value), '', 'Value'),
+          td(priceCell(r), 'r' + (r.stale ? ' warn' : ''), 'Price'), td(sparkline(r.series), 'wide-only'), td(usd(r.value), '', 'Value'),
           td(susd(r.pnl), 'r ' + tone(r.pnl)), td(r.pnl_pct == null ? '—' : spct(r.pnl_pct), 'wide-only ' + (r.pnl_pct == null ? 'muted' : tone(r.pnl))));
         return tr;
       }));
     }
     draw();
+  }
+
+  function priceCell(r) {
+    const f = document.createDocumentFragment();
+    if (hitTarget(r)) { const d = el('span', null, 'target-dot'); d.title = 'Sell target reached'; f.append(d); }
+    f.append(usd(r.price)); return f;
+  }
+
+  function drawTargets(pos) {
+    const hits = pos.filter(hitTarget);
+    $('targetsCard').hidden = !hits.length;
+    $('targetsList').replaceChildren(...hits.map((r) => {
+      const li = el('li', null, 'clickable'); li.style.cursor = 'pointer'; li.onclick = () => openSheet(r);
+      const v = el('div', null, 'val pos'); v.append(el('div', usd(r.price)), el('div', 'target ' + usd(targets[r.item]), 'cat'));
+      li.append(thumb(r), el('span', r.item, 'name'), v); return li;
+    }));
+  }
+
+  // ---------- Item detail sheet ----------
+  let sheetItem = null;
+  function openSheet(r) {
+    sheetItem = r;
+    $('sheetThumb').replaceChildren(thumb(r));
+    $('sheetTitle').textContent = r.item; $('sheetCat').textContent = r.category;
+    $('sheetLink').href = steamUrl(r.item);
+    const stat = (k, v, h, cls) => { const d = el('div', null, 'stat'); d.append(el('div', k, 'k'), el('div', v, 'v ' + (cls || '')), el('div', h || '', 'h')); return d; };
+    const steamNet = r.price / 1.15, skinNet = r.skinport ? r.skinport * 0.92 : null;
+    const best = skinNet == null ? '' : skinNet > steamNet ? 'Skinport pays more' : 'Steam pays more';
+    $('sheetStats').replaceChildren(
+      stat('You hold', nf0.format(r.qty), 'avg buy ' + usd(r.avg_buy)),
+      stat('Value', usd(r.value), susd(r.pnl) + (r.pnl_pct == null ? '' : ' · ' + spct(r.pnl_pct)), tone(r.pnl)),
+      stat('Steam price', usd(r.price), 'you get ~' + usd(steamNet) + ' after fee'),
+      stat('Skinport price', r.skinport ? usd(r.skinport) : '—', r.skinport ? 'you get ~' + usd(skinNet) + '. ' + best : 'appears after the next price update'));
+    drawItemChart(r.series);
+    $('targetInput').value = targets[r.item] ?? '';
+    showTargetNote();
+    $('sheet').showModal();
+  }
+  function showTargetNote() {
+    const t = targets[sheetItem.item];
+    $('targetNote').textContent = t == null ? 'Saved on this device. The item gets a green dot when Steam reaches it.'
+      : sheetItem.price >= t ? `Reached: Steam is at ${usdOnly(sheetItem.price)}, target ${usdOnly(t)}.` : `Not yet: Steam is at ${usdOnly(sheetItem.price)}, target ${usdOnly(t)}.`;
+  }
+  $('sheetClose').onclick = () => $('sheet').close();
+  $('sheet').addEventListener('click', (e) => { if (e.target === $('sheet')) $('sheet').close(); });
+  $('targetSave').onclick = () => { const v = parseFloat($('targetInput').value); if (v > 0) { targets[sheetItem.item] = v; saveTargets(); showTargetNote(); render(DB); } };
+  $('targetClear').onclick = () => { delete targets[sheetItem.item]; saveTargets(); $('targetInput').value = ''; showTargetNote(); render(DB); };
+
+  function drawItemChart(series) {
+    const box = $('sheetChart'); box.replaceChildren();
+    if (!series || series.length < 2) { box.append(el('p', 'The chart appears after two daily updates.', 'card-sub')); return; }
+    const W = Math.max(260, box.clientWidth || 480), H = 140, L = 54, B = 20, R = W - 6;
+    const vals = series.map((p) => p[1]), lo = Math.min(...vals) * .95, hi = Math.max(...vals) * 1.05 || 1;
+    const t0 = Date.parse(series[0][0]), t1 = Date.parse(series.at(-1)[0]);
+    const x = (d) => L + (Date.parse(d) - t0) / ((t1 - t0) || 1) * (R - L), y = (v) => H - B - (v - lo) / ((hi - lo) || 1) * (H - B - 8);
+    const s = svg('svg', { width: '100%', viewBox: `0 0 ${W} ${H}` }, box);
+    [lo, (lo + hi) / 2, hi].forEach((v) => { svg('line', { x1: L, x2: R, y1: y(v), y2: y(v), class: 'grid' }, s); svg('text', { x: L - 8, y: y(v) + 4, 'text-anchor': 'end' }, s).textContent = usd(v); });
+    [series[0][0], series.at(-1)[0]].forEach((d, i) => { svg('text', { x: x(d), y: H - 4, 'text-anchor': i ? 'end' : 'start' }, s).textContent = fmtDay(d, false); });
+    svg('path', { d: series.map((p, i) => (i ? 'L' : 'M') + x(p[0]).toFixed(1) + ',' + y(p[1]).toFixed(1)).join(''), fill: 'none', class: 'l-value', 'stroke-width': 2 }, s);
+    series.forEach((p) => svg('circle', { cx: x(p[0]), cy: y(p[1]), r: series.length < 20 ? 3 : 0, class: 'd-value' }, s));
   }
 
   function drawSales(sales, icons) {

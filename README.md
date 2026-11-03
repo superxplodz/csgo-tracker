@@ -9,6 +9,7 @@ Password-protected portfolio site at **https://skins.bekasibro.my.id**, served b
 | `items.txt` | Item names only, for the daily price fetch. |
 | `incoming/prices.json` | Latest fetched prices (plain), pushed by the daily task. |
 | `scripts/apply_prices.py` | Merges `incoming/prices.json` into `data.enc`. |
+| `scripts/trade.py` | Record a buy or sell (updates holdings, sales and `items.txt`). |
 | `scripts/data_tool.py` | Open, edit and re-seal `data.enc` by hand, or change the password. |
 | `scripts/crypto_box.py` | Encryption shared by both scripts (browser-compatible). |
 | `.github/workflows/apply-prices.yml` | Runs `apply_prices.py` when new prices are pushed. |
@@ -19,8 +20,17 @@ Password-protected portfolio site at **https://skins.bekasibro.my.id**, served b
    Steam Community Market and pushes `incoming/prices.json`. It never sees the password.
 2. The **Apply prices** workflow merges them into `data.enc` using the `SITE_PASSWORD`
    repository secret. Items without a new price keep the last one and show in orange.
+   It also stores each item's daily price (for the trend lines), the Skinport lowest
+   listing (second price source) and the USD→IDR rate.
 
-## Editing holdings
+## Recording trades
+
+```
+SITE_PASSWORD='…' python scripts/trade.py buy  "Kilowatt Case" 50 0.15
+SITE_PASSWORD='…' python scripts/trade.py sell "Kilowatt Case" 20 0.30 --fee 15
+```
+
+## Editing holdings by hand
 
 ```
 pip install cryptography
