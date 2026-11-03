@@ -748,7 +748,9 @@
     const when = check.at ? new Date(check.at).toLocaleString('en-GB', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' WIB' : null;
     if (check.status !== 'ok' && !when) {
       card.hidden = false; $('invList').replaceChildren();
-      $('invSub').textContent = "Couldn't read your Steam inventory. Check that it's set to Public in Steam privacy settings.";
+      $('invSub').textContent = /429/.test(check.status) ? "Steam is limiting requests right now, so your inventory couldn't be checked yet. It retries with every price update."
+        : /40[13]/.test(check.status) ? "Your Steam inventory is private. Set Inventory to Public in Steam's privacy settings to enable this check."
+        : "Couldn't read your Steam inventory this time. It retries with every price update.";
       return;
     }
     card.hidden = !diffs.length;
