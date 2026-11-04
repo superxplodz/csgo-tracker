@@ -1,6 +1,6 @@
 name: Apply prices
 
-# The daily Claude task pushes plain Steam prices to incoming/prices.json.
+# "Fetch prices" pushes plain Steam prices to incoming/prices.json and starts this job.
 # This job merges them into the encrypted data.enc with the SITE_PASSWORD secret.
 on:
   push:

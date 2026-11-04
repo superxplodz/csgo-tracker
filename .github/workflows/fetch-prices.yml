@@ -1,0 +1,51 @@
+name: Fetch prices
+
+# Looks up every item in items.txt on the Steam Community Market and pushes
+# incoming/prices.json, then starts "Apply prices" to merge them into data.enc.
+# Runs at 06:47 and 13:47 WIB (Asia/Jakarta, UTC+7). The second run retries anything
+# the first one missed. Run it by hand from the Actions tab at any time.
+on:
+  schedule:
+    - cron: "47 23 * * *"   # 06:47 WIB
+    - cron: "47 6 * * *"    # 13:47 WIB
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: fetch-prices
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch Steam prices
+        id: fetch
+        run: python scripts/fetch_prices.py
+      - name: Commit prices
+        id: commit
+        run: |
+          git config user.name "price-bot"
+          git config user.email "price-bot@users.noreply.github.com"
+          git add incoming/prices.json
+          if git diff --cached --quiet; then
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "Steam prices $(TZ=Asia/Jakarta date +%F) (${{ steps.fetch.outputs.count }} items)"
+            git pull --rebase && git push
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
+          fi
+      # A push made by this workflow does not start other workflows on its own,
+      # so start "Apply prices" explicitly.
+      - name: Apply prices
+        if: steps.commit.outputs.pushed == 'true'
+        run: gh workflow run apply-prices.yml --ref main
+        env:
+          GH_TOKEN: ${{ github.token }}
