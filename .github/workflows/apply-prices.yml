@@ -8,7 +8,7 @@ on:
     - cron: "17 5 * * *"    # 12:17 WIB retry, in case the morning run failed
   push:
     branches: [main]
-    paths: ["incoming/prices.json", "scripts/apply_prices.py"]
+    paths: ["incoming/prices.json", "scripts/apply_prices.py", "items.txt"]
   workflow_dispatch: {}
 
 permissions:
@@ -20,19 +20,27 @@ concurrency:
 jobs:
   apply:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - run: pip install cryptography==44.0.0 brotli==1.1.0
-      - run: python scripts/apply_prices.py
+      - name: Update prices and save
         env:
           SITE_PASSWORD: ${{ secrets.SITE_PASSWORD }}
-      - run: |
+        run: |
           git config user.name "price-bot"
           git config user.email "price-bot@users.noreply.github.com"
-          git add data.enc items.txt
-          git diff --cached --quiet || git commit -m "Apply prices $(TZ=Asia/Jakarta date +%F)"
-          git pull --rebase && git push
+          # Retry from the latest commit if a trade was saved from the site meanwhile.
+          for attempt in 1 2 3; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            python scripts/apply_prices.py
+            git add data.enc items.txt
+            git diff --cached --quiet && exit 0
+            git commit -qm "Apply prices $(TZ=Asia/Jakarta date +%F)"
+            git push -q origin HEAD:main && exit 0
+            sleep 5
+          done
+          exit 1

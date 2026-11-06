@@ -215,6 +215,18 @@
   .target-row .input { max-width: 160px; padding: var(--s-2) var(--s-3); }
   .close-x { margin-left: auto; align-self: flex-start; }
   @media (max-width: 700px) { dialog.sheet { margin: auto auto 0; width: 100vw; max-width: 100vw; border-radius: var(--r-lg) var(--r-lg) 0 0; } }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--s-3); }
+  .form-grid label, .field { display: flex; flex-direction: column; gap: var(--s-1); font-size: var(--fs-xs); color: var(--muted); }
+  .form-grid .input, .field .input { padding: var(--s-2) var(--s-3); font-size: var(--fs-sm); color: var(--text); }
+  select.input { appearance: auto; }
+  .form-actions { display: flex; gap: var(--s-2); align-items: center; flex-wrap: wrap; margin-top: var(--s-3); }
+  .preview { font-size: var(--fs-sm); color: var(--muted); margin: var(--s-2) 0 0; font-variant-numeric: tabular-nums; }
+  .preview b { color: var(--text); font-weight: 600; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 60; background: var(--surface-2); color: var(--text);
+    border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--s-3) var(--s-4); font-size: var(--fs-sm); box-shadow: var(--shadow); max-width: calc(100vw - 32px); }
+  @media (max-width: 700px) { .toast { bottom: 92px; } }
+  .steps { margin: 0; padding-left: 1.2em; font-size: var(--fs-sm); color: var(--muted); display: flex; flex-direction: column; gap: var(--s-1); }
+  .steps b { color: var(--text); }
   footer { color: var(--subtle); font-size: var(--fs-xs); padding-top: var(--s-4); }
   @media (prefers-reduced-motion: no-preference) { .page:not([hidden]) { animation: in .25s ease-out; } @keyframes in { from { opacity: 0; transform: translateY(4px); } } }
 </style>
@@ -260,6 +272,7 @@
         <div class="menu" id="menu" hidden>
           <div><div class="menu-label">Currency</div><div class="seg" id="curSeg"><button type="button" data-v="USD">USD</button><button type="button" data-v="IDR">IDR</button></div></div>
           <div><div class="menu-label">Theme</div><div class="seg" id="themeSeg"><button type="button" data-v="">Auto</button><button type="button" data-v="light">Light</button><button type="button" data-v="dark">Dark</button></div></div>
+          <button class="btn" id="ghBtn" type="button" title="Needed to record trades on the site">Connect GitHub</button>
           <button class="btn" id="logout" type="button">Lock</button>
         </div>
       </div>
@@ -304,7 +317,8 @@
 
     <!-- Holdings -->
     <section class="page" id="tab-holdings" role="tabpanel" hidden>
-      <div class="page-head"><div><h1 class="page-title">Holdings</h1><p class="page-sub" id="holdSub"></p></div></div>
+      <div class="page-head"><div><h1 class="page-title">Holdings</h1><p class="page-sub" id="holdSub"></p></div>
+        <button class="btn" id="addBuyBtn" type="button">+ Record purchase</button></div>
       <div class="card">
         <div class="tools">
           <div class="search">
@@ -334,6 +348,7 @@
     <!-- Sales -->
     <section class="page" id="tab-sales" role="tabpanel" hidden>
       <div class="page-head"><div><h1 class="page-title">Sales</h1><p class="page-sub" id="salesSub"></p></div></div>
+      <p class="card-sub" style="margin:0">Record a sale from an item in Holdings. Tap a sale here to undo it.</p>
       <div class="card">
         <div class="tools">
           <div class="search">
@@ -371,6 +386,18 @@
     <div class="sheet-body">
       <div class="stats" id="sheetStats"></div>
       <div><h3>Price history</h3><div class="chart" id="sheetChart"></div></div>
+      <div id="sellBox">
+        <h3>Record a sale</h3>
+        <div class="form-grid">
+          <label>Quantity<input class="input" id="sQty" type="number" min="1" step="1" inputmode="numeric"></label>
+          <label><span>Price per item (<span class="curLbl">USD</span>)</span><input class="input" id="sPrice" type="number" min="0" step="any" inputmode="decimal"></label>
+          <label>Sold on<select class="input" id="sSite"></select></label>
+          <label id="sFeeWrap" hidden>Fee %<input class="input" id="sFee" type="number" min="0" max="100" step="0.01" inputmode="decimal"></label>
+          <label>Date<input class="input" id="sDate" type="date"></label>
+        </div>
+        <p class="preview" id="sPreview"></p>
+        <div class="form-actions"><button class="btn btn-primary" id="sSave" type="button">Save sale</button></div>
+      </div>
       <div>
         <h3>Sell target (USD per item)</h3>
         <div class="target-row">
@@ -383,6 +410,44 @@
       <a class="item" id="sheetLink" target="_blank" rel="noopener">Open on Steam Market ↗</a>
     </div>
   </dialog>
+
+  <dialog class="sheet" id="buySheet" aria-labelledby="buyTitle">
+    <div class="sheet-head"><h2 id="buyTitle">Record a purchase</h2>
+      <button class="btn icon-btn close-x" type="button" data-close="buySheet" aria-label="Close">✕</button></div>
+    <div class="sheet-body">
+      <div class="form-grid">
+        <label style="grid-column:1/-1">Item (exact Steam name)<input class="input" id="bItem" list="itemNames" autocomplete="off" placeholder="e.g. Kilowatt Case"></label>
+        <label>Quantity<input class="input" id="bQty" type="number" min="1" step="1" value="1" inputmode="numeric"></label>
+        <label><span>Price per item (<span class="curLbl">USD</span>)</span><input class="input" id="bPrice" type="number" min="0" step="any" inputmode="decimal"></label>
+        <label>Date<input class="input" id="bDate" type="date"></label>
+      </div>
+      <datalist id="itemNames"></datalist>
+      <p class="preview" id="bPreview"></p>
+      <div class="form-actions"><button class="btn btn-primary" id="bSave" type="button">Save purchase</button></div>
+    </div>
+  </dialog>
+
+  <dialog class="sheet" id="ghSheet" aria-labelledby="ghTitle">
+    <div class="sheet-head"><h2 id="ghTitle">Connect GitHub</h2>
+      <button class="btn icon-btn close-x" type="button" data-close="ghSheet" aria-label="Close">✕</button></div>
+    <div class="sheet-body">
+      <p class="card-sub" style="margin:0">Trades you record are saved straight to your repo. This needs a GitHub token that can only edit <b>csgo-tracker</b>. It stays on this device.</p>
+      <ol class="steps">
+        <li>Open <a class="item" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com → New fine-grained token</a></li>
+        <li>Name: <b>CS2 portfolio</b>. Expiration: <b>1 year</b></li>
+        <li>Repository access: <b>Only select repositories → csgo-tracker</b></li>
+        <li>Permissions → Repository → <b>Contents: Read and write</b></li>
+        <li><b>Generate token</b>, copy it and paste it below</li>
+      </ol>
+      <label class="field">Token<input class="input" id="ghToken" type="password" autocomplete="off" placeholder="github_pat_…"></label>
+      <p class="preview" id="ghStatus"></p>
+      <div class="form-actions">
+        <button class="btn btn-primary" id="ghSave" type="button">Save and test</button>
+        <button class="btn" id="ghRemove" type="button">Disconnect</button>
+      </div>
+    </div>
+  </dialog>
+  <div class="toast" id="toast" hidden></div>
 </div>
 
 <script>
@@ -419,6 +484,52 @@
   document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => openTab(t.dataset.tab, true)));
   window.addEventListener('hashchange', () => openTab(location.hash.slice(1)));
 
+  // ---------- Encryption (same format as scripts/crypto_box.py) ----------
+  const toB64 = (bytes) => { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode(...bytes.subarray(i, i + 0x8000)); return btoa(s); };
+  async function encrypt(obj, password) {
+    const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12)), iter = 250000;
+    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+    const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: iter }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt']);
+    const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(JSON.stringify(obj))));
+    return JSON.stringify({ v: 1, kdf: 'PBKDF2-SHA256', iter, salt: toB64(salt), iv: toB64(iv), ct: toB64(ct) });
+  }
+
+  // ---------- GitHub sync (fine-grained token, this repo only, stored on this device) ----------
+  const REPO = 'superxplodz/csgo-tracker', GH_KEY = 'cs2pf-gh';
+  const ghToken = () => { try { return localStorage.getItem(GH_KEY) || ''; } catch (e) { return ''; } };
+  async function gh(path, opts = {}, token = ghToken()) {
+    const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, { ...opts, cache: 'no-store',
+      headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', ...(opts.headers || {}) } });
+    if (!r.ok) { const e = new Error(`GitHub ${r.status}`); e.status = r.status; throw e; }
+    return r.json();
+  }
+  async function ghGet(path, token) {
+    const j = await gh(path + '?ref=main', {}, token);
+    return { sha: j.sha, text: new TextDecoder().decode(Uint8Array.from(atob(j.content.replace(/\n/g, '')), (c) => c.charCodeAt(0))) };
+  }
+  const ghPut = (path, text, sha, message) => gh(path, { method: 'PUT', body: JSON.stringify({ message, sha, branch: 'main',
+    content: toB64(new TextEncoder().encode(text)) }) });
+
+  // Apply a change to the latest data on GitHub, re-encrypt and save. Retries if the daily update saved in between.
+  async function commitChange(mutate, message) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const cur = await ghGet('data.enc');
+      const db = await decrypt(JSON.parse(cur.text), PASSWORD);
+      const before = db.holdings.map((h) => h.item).join('\n');
+      mutate(db);
+      try {
+        await ghPut('data.enc', await encrypt(db, PASSWORD), cur.sha, message);
+      } catch (e) { if (e.status === 409 || e.status === 422) continue; throw e; }
+      const names = db.holdings.map((h) => h.item).join('\n');
+      if (names !== before) { // keeps the daily price list in sync; also triggers a price update for new items
+        const it = await ghGet('items.txt');
+        await ghPut('items.txt', names + '\n', it.sha, 'Update item list');
+      }
+      return db;
+    }
+    throw new Error('The data changed on GitHub several times. Try again.');
+  }
+
   // ---------- Unlock ----------
   const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
   async function decrypt(env, password) {
@@ -427,9 +538,13 @@
       base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
     return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(env.iv) }, key, b64(env.ct))));
   }
+  let PASSWORD = null;
   async function unlock(password, remember) {
-    const env = await (await fetch('data.enc?t=' + Date.now(), { cache: 'no-store' })).json();
+    let env;
+    try { env = ghToken() ? JSON.parse((await ghGet('data.enc')).text) : null; } catch (e) { env = null; } // freshest copy, if connected
+    if (!env) env = await (await fetch('data.enc?t=' + Date.now(), { cache: 'no-store' })).json();
     const db = await decrypt(env, password);
+    PASSWORD = password;
     try { if (remember) localStorage.setItem(PW_KEY, password); } catch (e) {}
     $('lock').hidden = true; $('app').hidden = false;
     render(db);
@@ -530,7 +645,8 @@
 
     $('hValue').textContent = usd(value);
     const badge = $('hBadge');
-    if (last && prev) { const ch = last.value - prev.value; badge.className = 'badge ' + tone(ch); badge.textContent = `${susd(ch)} (${spct(ch / prev.value)}) since ${fmtDay(prev.day, false)}`; }
+    const crossesSwitch = db.source_changed && prev && prev.day < db.source_changed && last.day >= db.source_changed;
+    if (last && prev && !crossesSwitch) { const ch = last.value - prev.value; badge.className = 'badge ' + tone(ch); badge.textContent = `${susd(ch)} (${spct(ch / prev.value)}) since ${fmtDay(prev.day, false)}`; }
     else { badge.className = 'badge ' + tone(pnl); badge.textContent = `${susd(pnl)} (${spct(cost ? pnl / cost : 0)}) all time`; }
 
     const setKpi = (id, text, cls) => { $(id).textContent = text; if (cls) $(id).className = 'kpi-value ' + cls; };
@@ -680,12 +796,14 @@
     $('sheetStats').replaceChildren(
       stat('You hold', nf0.format(r.qty), 'avg buy ' + usd(r.avg_buy)),
       stat('Value', usd(r.value), susd(r.pnl) + (r.pnl_pct == null ? '' : ' · ' + spct(r.pnl_pct)), tone(r.pnl)),
+      stat('Average', usd(r.price), 'used for your portfolio value'),
       stat('Steam', r.steam ? usd(r.steam) : '—', r.steam ? `24h avg sale · you get ~${usd(steamNet)}` + (steamNet && skinNet && steamNet >= skinNet ? ' · pays more' : '') : 'no recent sales'),
       stat('Skinport', r.skinport ? usd(r.skinport) : '—', r.skinport ? `lowest listing · you get ~${usd(skinNet)}` + (best ? ' · pays more' : '') : 'not listed'),
-      stat('Average', usd(r.price), 'used for your portfolio value'));
+      );
     drawItemChart(r.series);
     $('targetInput').value = targets[r.item] ?? '';
     showTargetNote();
+    resetSellForm(r);
     $('sheet').showModal();
   }
   function showTargetNote() {
@@ -697,6 +815,130 @@
   $('sheet').addEventListener('click', (e) => { if (e.target === $('sheet')) $('sheet').close(); });
   $('targetSave').onclick = () => { const v = parseFloat($('targetInput').value); if (v > 0) { targets[sheetItem.item] = v; saveTargets(); showTargetNote(); render(DB); } };
   $('targetClear').onclick = () => { delete targets[sheetItem.item]; saveTargets(); $('targetInput').value = ''; showTargetNote(); render(DB); };
+
+  // ---------- Trades ----------
+  const SITES = [['steam', 'Steam', 13.04], ['skinport', 'Skinport', 8], ['csfloat', 'CSFloat', 2], ['buff', 'Buff163', 2.5], ['none', 'Other (no fee)', 0], ['custom', 'Custom fee', null]];
+  const SITE_KEY = 'cs2pf-site';
+  const today = () => new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10); // Jakarta date
+  const category = (n) => n.startsWith('Sticker |') ? 'Stickers' : n.includes('Capsule') ? 'Capsules' : n.includes('Souvenir Package') ? 'Souvenir packages'
+    : n.endsWith('Case') ? 'Cases' : n.includes('Music Kit') ? 'Music kits' : 'Weapon skins';
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const toUsd = (v) => v / RATE; // inputs are in the selected currency
+  let toastTimer;
+  const toast = (msg) => { const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 4000); };
+  const needGitHub = () => { if (ghToken()) return false; openGh(); toast('Connect GitHub first, so trades can be saved.'); return true; };
+  document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => $(b.dataset.close).close()));
+  ['buySheet', 'ghSheet'].forEach((id) => $(id).addEventListener('click', (e) => { if (e.target === $(id)) $(id).close(); }));
+
+  $('sSite').replaceChildren(...SITES.map(([v, label, fee]) => { const o = new Option(fee == null ? label : `${label} (${Math.round(fee * 10) / 10}%)`, v); return o; }));
+  try { $('sSite').value = localStorage.getItem(SITE_KEY) || 'steam'; } catch (e) {}
+  const saleFee = () => { const s = SITES.find((x) => x[0] === $('sSite').value); return s[2] == null ? (parseFloat($('sFee').value) || 0) : s[2]; };
+  function sellPreview() {
+    $('sFeeWrap').hidden = $('sSite').value !== 'custom';
+    const q = parseInt($('sQty').value, 10), pr = parseFloat($('sPrice').value);
+    if (!(q > 0) || !(pr >= 0) || !sheetItem) { $('sPreview').textContent = ''; return; }
+    const proceeds = q * toUsd(pr) * (1 - saleFee() / 100), cost = q * sheetItem.avg_buy, p = proceeds - cost;
+    $('sPreview').replaceChildren('You receive ', el('b', usd(proceeds)), ' · cost ', el('b', usd(cost)), ' · profit ', el('b', susd(p), tone(p)),
+      q > sheetItem.qty ? el('span', ` · you only hold ${sheetItem.qty}`, 'neg') : '');
+  }
+  ['sQty', 'sPrice', 'sSite', 'sFee'].forEach((id) => $(id).addEventListener('input', sellPreview));
+  $('sSite').addEventListener('change', () => { try { localStorage.setItem(SITE_KEY, $('sSite').value); } catch (e) {} sellPreview(); });
+  function resetSellForm(r) {
+    $('sQty').value = r.qty; $('sQty').max = r.qty; $('sPrice').value = ''; $('sDate').value = today();
+    $('sPrice').placeholder = (r.price * RATE).toFixed(CUR === 'IDR' ? 0 : 2);
+    document.querySelectorAll('.curLbl').forEach((x) => { x.textContent = CUR; });
+    sellPreview();
+  }
+  $('sSave').addEventListener('click', async () => {
+    if (needGitHub()) return;
+    const r = sheetItem, q = parseInt($('sQty').value, 10), pr = parseFloat($('sPrice').value), fee = saleFee();
+    const site = SITES.find((x) => x[0] === $('sSite').value)[1], date = $('sDate').value || today();
+    if (!(q > 0) || q > r.qty || !(pr >= 0)) { toast(`Enter a quantity up to ${r.qty} and a price.`); return; }
+    const price = toUsd(pr);
+    $('sSave').disabled = true; $('sSave').textContent = 'Saving…';
+    try {
+      const db = await commitChange((db) => {
+        const h = db.holdings.find((x) => x.item === r.item);
+        if (!h || h.qty < q) throw new Error(`You hold ${h ? h.qty : 0} of this item now.`);
+        const cost = r2(q * h.avg_buy), proceeds = r2(q * price * (1 - fee / 100));
+        db.sales.push({ id: crypto.randomUUID(), item: h.item, category: h.category, qty: q, buy: h.avg_buy, sale: Math.round(price * 1e4) / 1e4,
+          fee_pct: fee, platform: site, sold_on: date, proceeds, cost, realized: r2(proceeds - cost) });
+        h.qty -= q; h.cost = r2(Math.max(h.cost - cost, 0));
+        if (h.qty === 0) db.holdings.splice(db.holdings.indexOf(h), 1);
+      }, `Sell ${q} × ${r.item}`);
+      $('sheet').close(); render(db); toast(`Sale saved: ${q} × ${r.item}.`);
+    } catch (e) { toast('Not saved: ' + e.message); }
+    $('sSave').disabled = false; $('sSave').textContent = 'Save sale';
+  });
+
+  function openBuy() {
+    if (needGitHub()) return;
+    const names = new Set([...(DB.holdings || []).map((h) => h.item), ...(DB.sales || []).map((s) => s.item), ...Object.keys(DB.icons || {})]);
+    $('itemNames').replaceChildren(...[...names].sort().map((n) => new Option(n)));
+    $('bItem').value = ''; $('bQty').value = 1; $('bPrice').value = ''; $('bDate').value = today(); $('bPreview').textContent = '';
+    document.querySelectorAll('.curLbl').forEach((x) => { x.textContent = CUR; });
+    $('buySheet').showModal(); $('bItem').focus();
+  }
+  $('addBuyBtn').addEventListener('click', openBuy);
+  const buyPreview = () => {
+    const q = parseInt($('bQty').value, 10), pr = parseFloat($('bPrice').value), n = $('bItem').value.trim();
+    if (!(q > 0) || !(pr >= 0)) { $('bPreview').textContent = ''; return; }
+    const held = DB.holdings.find((h) => h.item === n);
+    $('bPreview').replaceChildren('Total ', el('b', usd(q * toUsd(pr))), held ? ` · you'll hold ${nf0.format(held.qty + q)}` : (n ? ' · new item' : ''));
+  };
+  ['bItem', 'bQty', 'bPrice'].forEach((id) => $(id).addEventListener('input', buyPreview));
+  $('bSave').addEventListener('click', async () => {
+    const n = $('bItem').value.trim(), q = parseInt($('bQty').value, 10), pr = parseFloat($('bPrice').value);
+    if (!n || !(q > 0) || !(pr >= 0)) { toast('Enter the item, quantity and price.'); return; }
+    const price = toUsd(pr);
+    $('bSave').disabled = true; $('bSave').textContent = 'Saving…';
+    try {
+      const db = await commitChange((db) => {
+        let h = db.holdings.find((x) => x.item === n);
+        if (!h) { h = { item: n, category: category(n), qty: 0, cost: 0, avg_buy: 0 }; db.holdings.push(h); db.holdings.sort((a, b) => a.item.localeCompare(b.item)); }
+        h.qty += q; h.cost = r2(h.cost + q * price); h.avg_buy = Math.round(h.cost / h.qty * 1e4) / 1e4;
+      }, `Buy ${q} × ${n}`);
+      $('buySheet').close(); render(db);
+      toast(db.prices.some((p) => p.item === n) ? `Purchase saved: ${q} × ${n}.` : `Purchase saved. ${n} gets its price in a few minutes.`);
+    } catch (e) { toast('Not saved: ' + e.message); }
+    $('bSave').disabled = false; $('bSave').textContent = 'Save purchase';
+  });
+
+  async function undoSale(sale) {
+    if (needGitHub()) return;
+    if (!confirm(`Undo this sale?\n\n${sale.qty} × ${sale.item} on ${fmtDay(sale.sold_on)}\n\nThe items go back into your holdings.`)) return;
+    try {
+      const db = await commitChange((db) => {
+        const i = db.sales.findIndex((x) => x.id === sale.id);
+        if (i < 0) throw new Error('That sale no longer exists.');
+        const [s] = db.sales.splice(i, 1);
+        let h = db.holdings.find((x) => x.item === s.item);
+        if (!h) { h = { item: s.item, category: s.category || category(s.item), qty: 0, cost: 0, avg_buy: 0 }; db.holdings.push(h); db.holdings.sort((a, b) => a.item.localeCompare(b.item)); }
+        h.qty += +s.qty; h.cost = r2(h.cost + +s.cost); h.avg_buy = Math.round(h.cost / h.qty * 1e4) / 1e4;
+      }, `Undo sale of ${sale.qty} × ${sale.item}`);
+      render(db); toast('Sale undone.');
+    } catch (e) { toast('Not saved: ' + e.message); }
+  }
+
+  // GitHub connect dialog
+  const showGh = () => { $('ghBtn').textContent = ghToken() ? 'GitHub connected ✓' : 'Connect GitHub'; };
+  function openGh() { $('ghToken').value = ''; $('ghStatus').textContent = ghToken() ? 'Connected on this device.' : ''; $('ghSheet').showModal(); }
+  $('ghBtn').addEventListener('click', () => { $('menu').hidden = true; openGh(); });
+  $('ghSave').addEventListener('click', async () => {
+    const t = $('ghToken').value.trim(); if (!t) return;
+    $('ghStatus').textContent = 'Testing…';
+    try {
+      const cur = await ghGet('data.enc', t);
+      await decrypt(JSON.parse(cur.text), PASSWORD); // token can read the repo
+      try { localStorage.setItem(GH_KEY, t); } catch (e) {}
+      $('ghStatus').textContent = 'Connected. You can now record trades from this device.'; showGh();
+    } catch (e) {
+      $('ghStatus').textContent = e.status === 401 ? 'GitHub rejected this token. Check you copied all of it.'
+        : e.status === 404 ? 'This token can\'t see csgo-tracker. Give it access to that repository.' : 'Could not connect: ' + e.message;
+    }
+  });
+  $('ghRemove').addEventListener('click', () => { try { localStorage.removeItem(GH_KEY); } catch (e) {} $('ghStatus').textContent = 'Disconnected.'; showGh(); });
+  showGh();
 
   function drawItemChart(series) {
     const box = $('sheetChart'); box.replaceChildren();
@@ -746,7 +988,8 @@
       const body = document.querySelector('#salesTable tbody');
       if (!rows.length) { const tr = el('tr'); const c = el('td', 'No sales match.', 'empty'); c.colSpan = 7; tr.append(c); return body.replaceChildren(tr); }
       body.replaceChildren(...rows.map((r) => {
-        const tr = el('tr');
+        const tr = el('tr', null, 'clickable');
+        tr.addEventListener('click', (e) => { if (!e.target.closest('a')) undoSale(r); });
         tr.append(td(itemCell({ item: r.item, icon: icons.get(r.item) }, fmtDay(r.sold_on), 'narrow-only'), 'l'), td(fmtDay(r.sold_on), 'muted wide-only'),
           td(nf0.format(r.qty), '', 'Qty'), td(usd(r.buy), 'muted wide-only'), td(usd(r.sale), '', 'Sale'), td(r.fee_pct + '%', 'muted wide-only'),
           td(susd(r.realized), 'r ' + tone(r.realized)));

@@ -54,6 +54,27 @@ def steam_feed():
     return out
 
 
+def fill_missing_icons(db):
+    """Look up pictures for items without one (e.g. newly bought) in a public CS2 item database."""
+    icons = db.setdefault("icons", {})
+    missing = {h["item"] for h in db["holdings"]} | {s["item"] for s in db["sales"]}
+    missing = {n for n in missing if n not in icons}
+    if not missing:
+        return
+    base = "https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/"
+    for f in ("crates", "stickers", "music_kits", "agents", "skins_not_grouped"):
+        try:
+            for x in get_json(base + f + ".json"):
+                if x.get("market_hash_name") in missing and x.get("image"):
+                    icons[x["market_hash_name"]] = x["image"]
+                    missing.discard(x["market_hash_name"])
+        except Exception as e:
+            print(f"Icons ({f}) skipped: {e}")
+        if not missing:
+            break
+    print(f"Icons: {len(missing)} still missing")
+
+
 def skinport_prices():
     try:
         rows = get_json("https://api.skinport.com/v1/items?app_id=730&currency=USD&tradable=0", brotli_ok=True)
@@ -89,6 +110,7 @@ def main():
         db["price_source"] = "blend"
         db["source_changed"] = day  # marked on the value chart
 
+    fill_missing_icons(db)
     old = {p["item"]: p for p in db.get("prices", [])}
     item_history = db.setdefault("item_history", {})
     prices, fresh = [], 0

@@ -30,6 +30,10 @@ The **Apply prices** workflow runs every day at 06:47 WIB (retry at 12:17 WIB). 
 
 ## Recording trades
 
+On the site: Holdings → **Record purchase**, or tap an item → **Record a sale**. Tap a sale to undo it.
+This needs a fine-grained GitHub token (Contents: read and write on this repo only), entered once per device
+under Settings → Connect GitHub. From the command line:
+
 ```
 SITE_PASSWORD='…' python scripts/trade.py buy  "Kilowatt Case" 50 0.15
 SITE_PASSWORD='…' python scripts/trade.py sell "Kilowatt Case" 20 0.30 --fee 15
