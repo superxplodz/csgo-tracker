@@ -1,0 +1,5 @@
+https://prices.csgotrader.app/latest/prices_v6.json ERROR Expecting value: line 1 column 1 (char 0)
+https://prices.csgotrader.app/latest/steam.json 200 3727093 dict 34413
+ sample Recoil Case {"last_24h": 0.47, "last_7d": 0.49, "last_30d": 0.55, "last_90d": 0.56}
+ coverage 115 of 115
+steam search ERROR HTTP Error 429: Too Many Requests
