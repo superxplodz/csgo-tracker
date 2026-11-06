@@ -1,0 +1,36 @@
+name: Probe price feeds
+on:
+  push:
+    branches: [main]
+    paths: ["probe/run.txt"]
+permissions:
+  contents: write
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python3 - <<'PY' > probe/out.txt 2>&1
+          import json, urllib.request, gzip
+          items = [l.strip() for l in open('items.txt', encoding='utf-8') if l.strip()]
+          def get(url, enc='identity'):
+              r = urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0', 'Accept-Encoding': enc}), timeout=90)
+              b = r.read()
+              if r.headers.get('Content-Encoding') == 'gzip': b = gzip.decompress(b)
+              return r.status, b
+          for url in ['https://prices.csgotrader.app/latest/prices_v6.json', 'https://prices.csgotrader.app/latest/steam.json']:
+              try:
+                  st, b = get(url, 'gzip'); d = json.loads(b)
+                  print(url, st, len(b), type(d).__name__, len(d))
+                  print(' sample Recoil Case', json.dumps(d.get('Recoil Case'))[:600])
+                  print(' coverage', sum(1 for n in items if n in d), 'of', len(items))
+              except Exception as e:
+                  print(url, 'ERROR', e)
+          try:
+              st, b = get('https://steamcommunity.com/market/search/render/?appid=730&norender=1&count=10&query=Recoil%20Case'); print('steam search', st, b[:200])
+          except Exception as e:
+              print('steam search ERROR', e)
+          PY
+          git config user.name probe-bot; git config user.email probe-bot@users.noreply.github.com
+          git add probe/out.txt && git commit -m "probe result" && git pull --rebase && git push
