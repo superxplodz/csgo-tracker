@@ -13,6 +13,7 @@ Also fetches (best effort, skipped on any error):
 Output: data.enc (prices, per-item price history, daily value history) and items.txt.
 Needs:  SITE_PASSWORD environment variable.
 """
+import gzip
 import json
 import os
 import urllib.request
@@ -35,6 +36,8 @@ def get_json(url, brotli_ok=False):
         if r.headers.get("Content-Encoding") == "br":
             import brotli
             body = brotli.decompress(body)
+    if body[:2] == b"\x1f\x8b":  # gzip, sent by some servers regardless of Accept-Encoding
+        body = gzip.decompress(body)
     return json.loads(body)
 
 
