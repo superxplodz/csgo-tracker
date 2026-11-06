@@ -8,7 +8,7 @@ Password-protected portfolio site at **https://skins.bekasibro.my.id**, served b
 | `data.enc` | Holdings, prices, sales and value history, AES-256-GCM encrypted. |
 | `items.txt` | Item names only. |
 | `incoming/prices.json` | Optional manual prices for items the feed doesn't cover. |
-| `scripts/apply_prices.py` | Merges `incoming/prices.json` into `data.enc`, and flags differences with the public Steam inventory. |
+| `scripts/apply_prices.py` | Daily price update into `data.enc`. |
 | `scripts/trade.py` | Record a buy or sell (updates holdings, sales and `items.txt`). |
 | `scripts/data_tool.py` | Open, edit and re-seal `data.enc` by hand, or change the password. |
 | `scripts/crypto_box.py` | Encryption shared by both scripts (browser-compatible). |
@@ -23,7 +23,7 @@ The **Apply prices** workflow runs every day at 06:47 WIB (retry at 12:17 WIB). 
   [CSGO Trader price feed](https://prices.csgotrader.app/latest/steam.json): the average
   Steam sale price over the last 24 hours (falling back to 7, 30 or 90 days);
 - adds Skinport's lowest listing and the USD→IDR rate;
-- checks the public Steam inventory (often rate-limited by Steam);
+- sets each item's price to the average of its Steam and Skinport prices;
 - merges everything into `data.enc` with the `SITE_PASSWORD` repository secret.
 
 `incoming/prices.json` can hold manual prices for items the feed lacks.

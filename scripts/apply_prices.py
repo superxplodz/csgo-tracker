@@ -8,8 +8,7 @@ don't apply. Optional manual prices in incoming/prices.json fill any gaps:
 Also fetches (best effort, skipped on any error):
   - Skinport lowest listing per item  (second price source)
   - USD -> IDR exchange rate
-  - Steam inventory check: compares the public inventory with holdings and flags
-    differences for review (it never changes holdings)
+Each item's price is the average of its Steam and Skinport prices (or whichever exists).
 Output: data.enc (prices, per-item price history, daily value history) and items.txt.
 Needs:  SITE_PASSWORD environment variable.
 """
@@ -72,29 +71,6 @@ def usd_idr():
         return None
 
 
-def inventory_check(steam_id, holdings, previous):
-    """Count marketable CS2 items in the public inventory and list differences with holdings."""
-    url = f"https://steamcommunity.com/inventory/{steam_id}/730/2?l=english&count=2000"
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    try:
-        inv = get_json(url)
-    except Exception as e:
-        print(f"Inventory skipped: {e}")
-        return {**(previous or {}), "status": f"error: {e}", "tried_at": now}
-    names = {(d["classid"], d["instanceid"]): d["market_hash_name"] for d in inv.get("descriptions", []) if d.get("marketable")}
-    counts = {}
-    for a in inv.get("assets", []):
-        n = names.get((a["classid"], a["instanceid"]))
-        if n:
-            counts[n] = counts.get(n, 0) + int(a.get("amount", 1))
-    held = {h["item"]: h["qty"] for h in holdings}
-    fewer = [{"item": n, "held": q, "in_inventory": counts.get(n, 0)} for n, q in held.items() if counts.get(n, 0) < q]
-    untracked = [{"item": n, "in_inventory": c, "held": held.get(n, 0)} for n, c in counts.items() if c > held.get(n, 0)]
-    print(f"Inventory: {sum(counts.values())} marketable items, {len(fewer)} fewer than held, {len(untracked)} untracked")
-    return {"status": "ok", "at": now, "tried_at": now, "fewer": sorted(fewer, key=lambda r: r["item"]),
-            "untracked": sorted(untracked, key=lambda r: r["item"])}
-
-
 def main():
     password = os.environ["SITE_PASSWORD"]
     db = decrypt(open(DATA, encoding="utf-8").read(), password)
@@ -109,24 +85,28 @@ def main():
     for n, v in manual.items():  # manual prices only fill gaps in the feed
         if not n.startswith("_") and isinstance(v, dict) and n not in new:
             new[n] = v
-    if feed and db.get("price_source") != "csgotrader":
-        db["price_source"] = "csgotrader"
+    if db.get("price_source") != "blend":
+        db["price_source"] = "blend"
         db["source_changed"] = day  # marked on the value chart
 
     old = {p["item"]: p for p in db.get("prices", [])}
     item_history = db.setdefault("item_history", {})
     prices, fresh = [], 0
     for h in db["holdings"]:
-        name, prev, got = h["item"], old.get(h["item"], {}), new.get(h["item"]) or {}
-        entry = {"item": name, "icon": got.get("icon") or prev.get("icon") or db.get("icons", {}).get(name),
-                 "skinport": skinport.get(name, prev.get("skinport"))}
-        if got.get("price"):
+        name, prev, got = h["item"], old.get(h["item"]), new.get(h["item"]) or {}
+        prev = prev or {}
+        steam = float(got["price"]) if got.get("price") else None
+        sk = skinport.get(name)
+        entry = {"item": name, "icon": got.get("icon") or prev.get("icon") or db.get("icons", {}).get(name)}
+        if steam or sk:
             fresh += 1
-            entry.update(price=float(got["price"]), listings=got.get("listings"), at=now, stale=False)
+            both = [v for v in (steam, sk) if v]
+            entry.update(price=round(sum(both) / len(both), 2), steam=steam, skinport=sk, at=now, stale=False)
             series = [p for p in item_history.get(name, []) if p[0] != day] + [[day, entry["price"]]]
             item_history[name] = sorted(series)[-ITEM_HISTORY_DAYS:]
         else:
-            entry.update(price=prev.get("price", 0), listings=prev.get("listings"), at=prev.get("at", now), stale=True)
+            entry.update(price=prev.get("price", 0), steam=prev.get("steam"), skinport=prev.get("skinport"),
+                         at=prev.get("at", now), stale=True)
         prices.append(entry)
 
     pmap = {p["item"]: p["price"] for p in prices}
@@ -136,8 +116,8 @@ def main():
            "items": sum(h["qty"] for h in db["holdings"])}
     history = sorted([r for r in db.get("history", []) if r["day"] != day] + [row], key=lambda r: r["day"])
 
-    if db.get("steam_id"):
-        db["inventory_check"] = inventory_check(db["steam_id"], db["holdings"], db.get("inventory_check"))
+    for key in ("inventory_check", "steam_id"):  # retired feature
+        db.pop(key, None)
     rate = usd_idr()
     if rate:
         db["fx"] = {"IDR": rate, "at": now}
@@ -146,7 +126,7 @@ def main():
         f.write(encrypt(db, password))
     with open(ITEMS, "w", encoding="utf-8") as f:
         f.write("\n".join(h["item"] for h in db["holdings"]) + "\n")
-    print(f"{day}: {fresh}/{len(prices)} Steam prices, {sum(1 for p in prices if p['skinport'])} Skinport, "
+    print(f"{day}: {fresh}/{len(prices)} priced, {sum(1 for p in prices if p.get('skinport'))} with Skinport, "
           f"value ${row['value']:,.2f}")
 
 

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title>CS2 skin portfolio</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23f5a524'/%3E%3Cpath d='M7 22l6-12 5 8 3.5-5 4 9' fill='none' stroke='%23111' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2366c0f4'/%3E%3Cpath d='M7 22l6-12 5 8 3.5-5 4 9' fill='none' stroke='%23111' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <script>
   // Apply the saved theme before first paint, so there is no flash.
   try { const t = localStorage.getItem('cs2pf-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
@@ -18,26 +18,26 @@
     --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-pill: 999px;
     --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     color-scheme: dark;
-    --bg: #0c0e12; --glow: rgba(245,165,36,.08); --surface: #14171d; --surface-2: #1b1f27; --border: #252a33;
+    --bg: #0c0e12; --glow: rgba(102,192,244,.07); --surface: #14171d; --surface-2: #1b1f27; --border: #252a33;
     --text: #edf0f4; --muted: #8b95a5; --subtle: #5f6876;
-    --accent: #f5a524; --accent-soft: rgba(245,165,36,.14); --on-accent: #16120a;
+    --accent: #66c0f4; --accent-soft: rgba(102,192,244,.14); --on-accent: #0b1622;
     --pos: #3ecf8e; --pos-soft: rgba(62,207,142,.12); --neg: #f26b6b; --neg-soft: rgba(242,107,107,.12);
     --warn: #f0b429; --focus: #7cb7ff; --grid: #20252d; --shadow: 0 8px 24px rgba(0,0,0,.25);
   }
   /* Light theme: picked in the toggle, or "Auto" on a light system */
   @media (prefers-color-scheme: light) { :root:not([data-theme]) {
     color-scheme: light;
-    --bg: #f6f7f9; --glow: rgba(217,138,0,.10); --surface: #fff; --surface-2: #f1f3f6; --border: #e3e6eb;
+    --bg: #f6f7f9; --glow: rgba(26,115,232,.07); --surface: #fff; --surface-2: #f1f3f6; --border: #e3e6eb;
     --text: #14171c; --muted: #5b6575; --subtle: #8a93a2;
-    --accent: #d98a00; --accent-soft: rgba(217,138,0,.12); --on-accent: #fff;
+    --accent: #1a73e8; --accent-soft: rgba(26,115,232,.1); --on-accent: #fff;
     --pos: #12936a; --pos-soft: rgba(18,147,106,.1); --neg: #d23f3f; --neg-soft: rgba(210,63,63,.1);
     --warn: #b7791f; --focus: #2563eb; --grid: #eceef2; --shadow: 0 1px 2px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.06);
   } }
   :root[data-theme="light"] {
     color-scheme: light;
-    --bg: #f6f7f9; --glow: rgba(217,138,0,.10); --surface: #fff; --surface-2: #f1f3f6; --border: #e3e6eb;
+    --bg: #f6f7f9; --glow: rgba(26,115,232,.07); --surface: #fff; --surface-2: #f1f3f6; --border: #e3e6eb;
     --text: #14171c; --muted: #5b6575; --subtle: #8a93a2;
-    --accent: #d98a00; --accent-soft: rgba(217,138,0,.12); --on-accent: #fff;
+    --accent: #1a73e8; --accent-soft: rgba(26,115,232,.1); --on-accent: #fff;
     --pos: #12936a; --pos-soft: rgba(18,147,106,.1); --neg: #d23f3f; --neg-soft: rgba(210,63,63,.1);
     --warn: #b7791f; --focus: #2563eb; --grid: #eceef2; --shadow: 0 1px 2px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.06);
   }
@@ -49,7 +49,7 @@
   button, input, select { font: inherit; color: inherit; }
   :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r-sm); }
   [hidden] { display: none !important; }
-  .pos { color: var(--pos); } .neg { color: var(--neg); } .warn { color: var(--warn); } .muted { color: var(--muted); }
+  .pos { color: var(--pos); } .neg { color: var(--neg); } .warn { color: var(--warn); } .stale { color: var(--subtle); font-style: italic; } .muted { color: var(--muted); }
   .container { max-width: 1200px; margin: 0 auto; padding: 0 var(--s-4); }
   @media (min-width: 768px) { .container { padding: 0 var(--s-6); } }
 
@@ -89,12 +89,18 @@
   .tab:hover { color: var(--text); background: var(--surface-2); }
   .tab[aria-selected="true"] { color: var(--text); background: var(--surface-2); }
   .tab svg { width: 18px; height: 18px; }
-  .top-right { margin-left: auto; display: flex; align-items: center; gap: var(--s-2); }
-  .updated { font-size: var(--fs-xs); color: var(--muted); margin-right: var(--s-2); }
+  .top-right { margin-left: auto; display: flex; align-items: center; gap: var(--s-2); position: relative; }
+  .app-btn { text-decoration: none; color: var(--text); }
+  .menu { position: absolute; right: 0; top: calc(100% + 10px); width: 240px; z-index: 40; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r-lg); box-shadow: var(--shadow); padding: var(--s-4); display: flex; flex-direction: column; gap: var(--s-4); }
+  .menu-label { font-size: var(--fs-xs); color: var(--muted); margin-bottom: var(--s-1); }
+  .seg { display: flex; gap: 2px; background: var(--surface-2); border-radius: var(--r-md); padding: 3px; }
+  .seg button { flex: 1; border: 0; background: none; color: var(--muted); padding: 6px; border-radius: var(--r-sm); font-size: var(--fs-sm); cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.15); }
   /* Phone: tabs become a bottom bar */
   @media (max-width: 700px) {
     .topbar { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--bg); } /* a blur here would trap the fixed tab bar */
-    .updated { display: none; }
+    .app-label { display: none; }
     .tabs { position: fixed; left: 0; right: 0; bottom: 0; margin: 0; justify-content: space-around; z-index: 30;
       background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
       border-top: 1px solid var(--border); padding: var(--s-2) var(--s-2) calc(var(--s-2) + env(safe-area-inset-bottom)); }
@@ -244,12 +250,18 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Sales</button>
       </nav>
       <div class="top-right">
-        <span class="updated" id="updated"></span>
-        <button class="btn icon-btn cur-btn" id="curBtn" type="button" title="Switch currency">USD</button>
-        <button class="btn icon-btn" id="themeBtn" type="button" aria-label="Theme"></button>
-        <button class="btn icon-btn" id="logout" type="button" aria-label="Lock" title="Lock">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+        <a class="btn app-btn" id="appBtn" href="download/cs2-portfolio.apk" download title="Download the Android app">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+          <span class="app-label">Get app</span>
+        </a>
+        <button class="btn icon-btn" id="menuBtn" type="button" aria-label="Settings" aria-haspopup="true" aria-expanded="false">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
         </button>
+        <div class="menu" id="menu" hidden>
+          <div><div class="menu-label">Currency</div><div class="seg" id="curSeg"><button type="button" data-v="USD">USD</button><button type="button" data-v="IDR">IDR</button></div></div>
+          <div><div class="menu-label">Theme</div><div class="seg" id="themeSeg"><button type="button" data-v="">Auto</button><button type="button" data-v="light">Light</button><button type="button" data-v="dark">Dark</button></div></div>
+          <button class="btn" id="logout" type="button">Lock</button>
+        </div>
       </div>
     </div>
   </header>
@@ -258,40 +270,35 @@
     <!-- Overview -->
     <section class="page" id="tab-overview" role="tabpanel">
       <div class="hero">
-        <span class="eyebrow">Value at Steam prices</span>
+        <span class="eyebrow">Portfolio value</span>
         <h1 class="hero-value" id="hValue">—</h1>
         <div><span class="badge" id="hBadge"></span></div>
+        <span class="kpi-hint" id="hUpdated"></span>
       </div>
       <div class="kpis">
         <div class="card kpi"><span class="kpi-label">Unrealized profit</span><span class="kpi-value" id="kPnl">—</span><span class="kpi-hint" id="kPnlPct"></span></div>
-        <div class="card kpi"><span class="kpi-label">Cost basis</span><span class="kpi-value" id="kCost">—</span><span class="kpi-hint">What you paid for current holdings</span></div>
-        <div class="card kpi"><span class="kpi-label">If sold on Steam</span><span class="kpi-value" id="kAfter">—</span><span class="kpi-hint">After Steam's ~13% seller fee</span></div>
-        <div class="card kpi"><span class="kpi-label">Realized profit</span><span class="kpi-value" id="kReal">—</span><span class="kpi-hint">From past sales, after fees</span></div>
+        <div class="card kpi"><span class="kpi-label">Cost basis</span><span class="kpi-value" id="kCost">—</span></div>
+        <div class="card kpi"><span class="kpi-label">If sold on Steam</span><span class="kpi-value" id="kAfter">—</span></div>
+        <div class="card kpi"><span class="kpi-label">Realized profit</span><span class="kpi-value" id="kReal">—</span></div>
       </div>
       <div class="grid-2 wide-left">
         <div class="card">
-          <div class="card-head"><div><h2 class="card-title">Value over time</h2><p class="card-sub">One point per daily update</p></div>
+          <div class="card-head"><div><h2 class="card-title">Value over time</h2></div>
             <div class="legend"><span>Value</span><span class="cost">Cost</span></div></div>
           <div class="chart" id="trend"></div>
         </div>
         <div class="card">
-          <div class="card-head"><div><h2 class="card-title">By category</h2><p class="card-sub">Share of value, profit vs cost</p></div></div>
+          <div class="card-head"><div><h2 class="card-title">By category</h2></div></div>
           <div class="chart" id="cats"></div>
         </div>
       </div>
       <div class="card" id="targetsCard" hidden>
-        <div class="card-head"><div><h2 class="card-title">Sell targets reached</h2><p class="card-sub">Items at or above the target you set</p></div></div>
+        <div class="card-head"><div><h2 class="card-title">Sell targets reached</h2></div></div>
         <ul class="list" id="targetsList"></ul>
       </div>
-      <div class="card" id="invCard" hidden>
-        <div class="card-head"><div><h2 class="card-title">Check against Steam inventory</h2>
-          <p class="card-sub" id="invSub"></p></div></div>
-        <ul class="list" id="invList" style="max-height:320px;overflow:auto"></ul>
-        <p class="card-sub" style="margin-top:var(--s-3)">Nothing changes automatically. Tell Claude in chat which ones were sold or bought.</p>
-      </div>
       <div class="grid-2 even">
-        <div class="card"><div class="card-head"><div><h2 class="card-title">Top gainers</h2><p class="card-sub">Profit vs what you paid</p></div></div><ul class="list" id="gainers"></ul></div>
-        <div class="card"><div class="card-head"><div><h2 class="card-title">Top losers</h2><p class="card-sub">Loss vs what you paid</p></div></div><ul class="list" id="losers"></ul></div>
+        <div class="card"><div class="card-head"><div><h2 class="card-title">Top gainers</h2></div></div><ul class="list" id="gainers"></ul></div>
+        <div class="card"><div class="card-head"><div><h2 class="card-title">Top losers</h2></div></div><ul class="list" id="losers"></ul></div>
       </div>
     </section>
 
@@ -320,7 +327,7 @@
             <tbody></tbody>
           </table>
         </div>
-        <p class="card-sub" style="margin-top:var(--s-3)">Tap an item for details and a sell target. <span class="warn">Orange</span> prices are from an earlier update.</p>
+        <p class="card-sub" style="margin-top:var(--s-3)">Tap an item for its Steam and Skinport prices and a sell target.</p>
       </div>
     </section>
 
@@ -363,7 +370,7 @@
     </div>
     <div class="sheet-body">
       <div class="stats" id="sheetStats"></div>
-      <div><h3>Steam price history</h3><div class="chart" id="sheetChart"></div></div>
+      <div><h3>Price history</h3><div class="chart" id="sheetChart"></div></div>
       <div>
         <h3>Sell target (USD per item)</h3>
         <div class="target-row">
@@ -383,26 +390,20 @@
   const $ = (id) => document.getElementById(id);
   const PW_KEY = 'cs2pf-pw', THEME_KEY = 'cs2pf-theme';
 
-  // ---------- Theme: Auto -> Light -> Dark ----------
-  const THEMES = [
-    ['', 'Theme: auto', '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/>'],
-    ['light', 'Theme: light', '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'],
-    ['dark', 'Theme: dark', '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>'],
-  ];
-  const showTheme = () => {
-    const cur = document.documentElement.dataset.theme || '';
-    const [, label, svg] = THEMES.find((t) => t[0] === cur) || THEMES[0];
-    $('themeBtn').innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">${svg}</svg>`;
-    $('themeBtn').title = label; $('themeBtn').setAttribute('aria-label', label);
+  // ---------- Settings menu: currency, theme, lock ----------
+  const pressSeg = (id, v) => $(id).querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === v)));
+  const setTheme = (v) => {
+    if (v) document.documentElement.dataset.theme = v; else delete document.documentElement.dataset.theme;
+    try { v ? localStorage.setItem(THEME_KEY, v) : localStorage.removeItem(THEME_KEY); } catch (e) {}
+    pressSeg('themeSeg', v);
   };
-  $('themeBtn').addEventListener('click', () => {
-    const cur = document.documentElement.dataset.theme || '';
-    const next = THEMES[(THEMES.findIndex((t) => t[0] === cur) + 1) % THEMES.length][0];
-    if (next) document.documentElement.dataset.theme = next; else delete document.documentElement.dataset.theme;
-    try { next ? localStorage.setItem(THEME_KEY, next) : localStorage.removeItem(THEME_KEY); } catch (e) {}
-    showTheme();
-  });
-  showTheme();
+  $('themeSeg').querySelectorAll('button').forEach((b) => b.addEventListener('click', () => setTheme(b.dataset.v)));
+  pressSeg('themeSeg', document.documentElement.dataset.theme || '');
+  const toggleMenu = (open) => { $('menu').hidden = !open; $('menuBtn').setAttribute('aria-expanded', String(open)); };
+  $('menuBtn').addEventListener('click', (e) => { e.stopPropagation(); toggleMenu($('menu').hidden); });
+  document.addEventListener('click', (e) => { if (!$('menu').hidden && !e.target.closest('#menu')) toggleMenu(false); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') toggleMenu(false); });
+  if (/; wv\)/.test(navigator.userAgent)) $('appBtn').hidden = true; // already inside the Android app
 
   // ---------- Tabs ----------
   const TABS = ['overview', 'holdings', 'sales'];
@@ -505,20 +506,20 @@
 
   // ---------- Render ----------
   let DB = null, resizeHooked = false;
-  $('curBtn').addEventListener('click', () => {
-    CUR = CUR === 'USD' ? 'IDR' : 'USD';
+  $('curSeg').querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
+    CUR = b.dataset.v;
     try { localStorage.setItem(CUR_KEY, CUR); } catch (e) {}
     if (DB) { render(DB); if (!$('tab-overview').hidden) redrawCharts(); }
-  });
+  }));
   function render(db) {
     DB = db;
     RATE = CUR === 'IDR' ? (db.fx?.IDR || 16000) : 1;
-    $('curBtn').textContent = CUR;
+    pressSeg('curSeg', CUR);
     const pmap = new Map(db.prices.map((p) => [p.item, p]));
     const pos = db.holdings.map((h) => {
       const p = pmap.get(h.item) || {}, price = Number(p.price) || 0, value = Math.round(price * h.qty * 100) / 100;
       return { ...h, price, value, pnl: Math.round((value - h.cost) * 100) / 100, pnl_pct: h.cost > 0 ? (value - h.cost) / h.cost : null,
-        icon: p.icon || (db.icons || {})[h.item], stale: !!p.stale, skinport: p.skinport, series: (db.item_history || {})[h.item] || [] };
+        icon: p.icon || (db.icons || {})[h.item], stale: !!p.stale, steam: p.steam, skinport: p.skinport, series: (db.item_history || {})[h.item] || [] };
     });
     const icons = new Map([...Object.entries(db.icons || {}), ...pos.filter((r) => r.icon).map((r) => [r.item, r.icon])]);
     const value = pos.reduce((s, r) => s + r.value, 0), cost = pos.reduce((s, r) => s + r.cost, 0), pnl = value - cost;
@@ -538,21 +539,16 @@
     $('holdSub').textContent = `${nf0.format(units)} items · ${pos.length} different · ${usd(value)}`;
 
     const upd = db.updated_at ? new Date(db.updated_at).toLocaleString('en-GB', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' WIB' : '—';
-    $('updated').textContent = 'Updated ' + upd;
-    $('footer').textContent = db.price_source === 'csgotrader'
-      ? `Steam prices are the average sale price over the last 24 hours, via the CSGO Trader price feed. Last update ${upd}.`
-      : `Prices from the Steam Community Market. Last update ${upd}.`;
+    $('hUpdated').textContent = 'Updated ' + upd;
+    $('footer').textContent = 'Price = average of Steam (24h sales) and Skinport (lowest listing).';
 
     if (CUR === 'IDR' && db.fx) $('footer').textContent += ` 1 USD = Rp${idr.format(db.fx.IDR)}.`;
-    const app = el('a', 'Get the Android app', 'item'); app.href = 'download/cs2-portfolio.apk'; app.style.marginLeft = '8px';
-    $('footer').append(' ', app);
     redrawCharts = () => { drawTrend(hist, db.source_changed); drawCats(pos); };
     if (!resizeHooked) { resizeHooked = true; let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => { if (!$('tab-overview').hidden) redrawCharts(); }, 150); }); }
     drawMovers(pos);
     drawTargets(pos);
     setupHoldings(pos);
     setupSales(db.sales, icons);
-    drawInventory(db.inventory_check, icons);
   }
 
   function drawTrend(hist, sourceChanged) {
@@ -643,7 +639,7 @@
         const tr = el('tr', null, 'clickable');
         tr.addEventListener('click', (e) => { if (!e.target.closest('a')) openSheet(r); });
         tr.append(td(itemCell(r, r.category), 'l'), td(nf0.format(r.qty), '', 'Qty'), td(usd(r.avg_buy), 'muted wide-only'),
-          td(priceCell(r), 'r' + (r.stale ? ' warn' : ''), 'Price'), td(sparkline(r.series), 'wide-only'), td(usd(r.value), '', 'Value'),
+          td(priceCell(r), 'r' + (r.stale ? ' stale' : ''), 'Price'), td(sparkline(r.series), 'wide-only'), td(usd(r.value), '', 'Value'),
           td(susd(r.pnl), 'r ' + tone(r.pnl)), td(r.pnl_pct == null ? '—' : spct(r.pnl_pct), 'wide-only ' + (r.pnl_pct == null ? 'muted' : tone(r.pnl))));
         return tr;
       }));
@@ -678,13 +674,15 @@
     $('sheetTitle').textContent = r.item; $('sheetCat').textContent = r.category;
     $('sheetLink').href = steamUrl(r.item);
     const stat = (k, v, h, cls) => { const d = el('div', null, 'stat'); d.append(el('div', k, 'k'), el('div', v, 'v ' + (cls || '')), el('div', h || '', 'h')); return d; };
-    const steamNet = r.price / 1.15, skinNet = r.skinport ? r.skinport * 0.92 : null;
-    const best = skinNet == null ? '' : skinNet > steamNet ? 'Skinport pays more' : 'Steam pays more';
+    // Seller fees: Steam ~13% (price / 1.15), Skinport ~8%.
+    const steamNet = r.steam ? r.steam / 1.15 : null, skinNet = r.skinport ? r.skinport * 0.92 : null;
+    const best = steamNet && skinNet ? (skinNet > steamNet ? 'Pays more' : '') : '';
     $('sheetStats').replaceChildren(
       stat('You hold', nf0.format(r.qty), 'avg buy ' + usd(r.avg_buy)),
       stat('Value', usd(r.value), susd(r.pnl) + (r.pnl_pct == null ? '' : ' · ' + spct(r.pnl_pct)), tone(r.pnl)),
-      stat('Steam price', usd(r.price), '24h avg sale. You get ~' + usd(steamNet) + ' after fee'),
-      stat('Skinport price', r.skinport ? usd(r.skinport) : '—', r.skinport ? 'you get ~' + usd(skinNet) + '. ' + best : 'appears after the next price update'));
+      stat('Steam', r.steam ? usd(r.steam) : '—', r.steam ? `24h avg sale · you get ~${usd(steamNet)}` + (steamNet && skinNet && steamNet >= skinNet ? ' · pays more' : '') : 'no recent sales'),
+      stat('Skinport', r.skinport ? usd(r.skinport) : '—', r.skinport ? `lowest listing · you get ~${usd(skinNet)}` + (best ? ' · pays more' : '') : 'not listed'),
+      stat('Average', usd(r.price), 'used for your portfolio value'));
     drawItemChart(r.series);
     $('targetInput').value = targets[r.item] ?? '';
     showTargetNote();
@@ -692,8 +690,8 @@
   }
   function showTargetNote() {
     const t = targets[sheetItem.item];
-    $('targetNote').textContent = t == null ? 'Saved on this device. The item gets a green dot when Steam reaches it.'
-      : sheetItem.price >= t ? `Reached: Steam is at ${usdOnly(sheetItem.price)}, target ${usdOnly(t)}.` : `Not yet: Steam is at ${usdOnly(sheetItem.price)}, target ${usdOnly(t)}.`;
+    $('targetNote').textContent = t == null ? 'Saved on this device. The item gets a green dot when its price reaches it.'
+      : sheetItem.price >= t ? `Reached: price is ${usdOnly(sheetItem.price)}, target ${usdOnly(t)}.` : `Not yet: price is ${usdOnly(sheetItem.price)}, target ${usdOnly(t)}.`;
   }
   $('sheetClose').onclick = () => $('sheet').close();
   $('sheet').addEventListener('click', (e) => { if (e.target === $('sheet')) $('sheet').close(); });
@@ -761,27 +759,6 @@
     draw();
   }
 
-  function drawInventory(check, icons) {
-    const card = $('invCard');
-    if (!check) { card.hidden = true; return; }
-    const diffs = [...(check.fewer || []).map((r) => ({ ...r, kind: 'fewer' })), ...(check.untracked || []).map((r) => ({ ...r, kind: 'new' }))];
-    const when = check.at ? new Date(check.at).toLocaleString('en-GB', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' WIB' : null;
-    if (check.status !== 'ok' && !when) {
-      card.hidden = false; $('invList').replaceChildren();
-      $('invSub').textContent = /429/.test(check.status) ? "Steam is limiting requests right now, so your inventory couldn't be checked yet. It retries with every price update."
-        : /40[13]/.test(check.status) ? "Your Steam inventory is private. Set Inventory to Public in Steam's privacy settings to enable this check."
-        : "Couldn't read your Steam inventory this time. It retries with every price update.";
-      return;
-    }
-    card.hidden = !diffs.length;
-    $('invSub').textContent = `${diffs.length} item${diffs.length === 1 ? '' : 's'} differ from your public inventory (checked ${when}). Items in storage units don't show in the inventory, so they appear here too.`;
-    $('invList').replaceChildren(...diffs.map((r) => {
-      const li = el('li');
-      const v = el('div', null, 'val'); v.append(el('div', r.kind === 'fewer' ? `${nf0.format(r.in_inventory)} of ${nf0.format(r.held)}` : `+${nf0.format(r.in_inventory - r.held)}`),
-        el('div', r.kind === 'fewer' ? 'in inventory vs tracked' : 'not tracked yet', 'cat'));
-      li.append(thumb({ item: r.item, icon: icons.get(r.item) }), el('span', r.item, 'name'), v); return li;
-    }));
-  }
 })();
 </script>
 </body>
