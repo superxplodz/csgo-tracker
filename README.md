@@ -6,8 +6,8 @@ Password-protected portfolio site at **https://skins.bekasibro.my.id**, served b
 |---|---|
 | `index.html` | The whole site. Decrypts `data.enc` in the browser with the password. |
 | `data.enc` | Holdings, prices, sales and value history, AES-256-GCM encrypted. |
-| `items.txt` | Item names only, for the daily price fetch. |
-| `incoming/prices.json` | Latest fetched prices (plain), pushed by the daily task. |
+| `items.txt` | Item names only. |
+| `incoming/prices.json` | Optional manual prices for items the feed doesn't cover. |
 | `scripts/apply_prices.py` | Merges `incoming/prices.json` into `data.enc`, and flags differences with the public Steam inventory. |
 | `scripts/trade.py` | Record a buy or sell (updates holdings, sales and `items.txt`). |
 | `scripts/data_tool.py` | Open, edit and re-seal `data.enc` by hand, or change the password. |
@@ -18,12 +18,15 @@ Password-protected portfolio site at **https://skins.bekasibro.my.id**, served b
 
 ## How prices update
 
-1. A Claude scheduled task (06:47 and 13:47 WIB) looks up each item in `items.txt` on the
-   Steam Community Market and pushes `incoming/prices.json`. It never sees the password.
-2. The **Apply prices** workflow merges them into `data.enc` using the `SITE_PASSWORD`
-   repository secret. Items without a new price keep the last one and show in orange.
-   It also stores each item's daily price (for the trend lines), the Skinport lowest
-   listing (second price source) and the USD→IDR rate.
+The **Apply prices** workflow runs every day at 06:47 WIB (retry at 12:17 WIB). It:
+- downloads Steam prices for every item in one request from the public
+  [CSGO Trader price feed](https://prices.csgotrader.app/latest/steam.json): the average
+  Steam sale price over the last 24 hours (falling back to 7, 30 or 90 days);
+- adds Skinport's lowest listing and the USD→IDR rate;
+- checks the public Steam inventory (often rate-limited by Steam);
+- merges everything into `data.enc` with the `SITE_PASSWORD` repository secret.
+
+`incoming/prices.json` can hold manual prices for items the feed lacks.
 
 ## Recording trades
 

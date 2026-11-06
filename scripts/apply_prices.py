@@ -1,7 +1,10 @@
-"""Merge fetched Steam prices into the encrypted site data.
+"""Daily price update for the encrypted site data. Runs on GitHub Actions.
 
-Input:  incoming/prices.json  {"_date": "YYYY-MM-DD", "_fetched_at": ISO,
-                               "<item>": {"price": float, "listings": int|null, "icon": str|null}, ...}
+Steam prices come from the public CSGO Trader price feed (prices.csgotrader.app), which
+mirrors Steam Community Market sales: the average sale price over the last 24 hours
+(falling back to 7, 30 or 90 days). One request covers every item, so Steam's rate limits
+don't apply. Optional manual prices in incoming/prices.json fill any gaps:
+  {"<item>": {"price": float, "icon": str|null}, ...}
 Also fetches (best effort, skipped on any error):
   - Skinport lowest listing per item  (second price source)
   - USD -> IDR exchange rate
@@ -33,6 +36,20 @@ def get_json(url, brotli_ok=False):
             import brotli
             body = brotli.decompress(body)
     return json.loads(body)
+
+
+def steam_feed():
+    try:
+        feed = get_json("https://prices.csgotrader.app/latest/steam.json", brotli_ok=False)
+    except Exception as e:
+        print(f"Steam feed skipped: {e}")
+        return {}
+    out = {}
+    for name, p in feed.items():
+        price = next((p.get(k) for k in ("last_24h", "last_7d", "last_30d", "last_90d") if isinstance(p, dict) and p.get(k)), None)
+        if price:
+            out[name] = float(price)
+    return out
 
 
 def skinport_prices():
@@ -78,17 +95,27 @@ def inventory_check(steam_id, holdings, previous):
 def main():
     password = os.environ["SITE_PASSWORD"]
     db = decrypt(open(DATA, encoding="utf-8").read(), password)
-    new = json.load(open(INCOMING, encoding="utf-8")) if os.path.exists(INCOMING) else {}
-    now = new.get("_fetched_at") or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    day = new.get("_date") or datetime.now(JAKARTA).strftime("%Y-%m-%d")
+    manual = json.load(open(INCOMING, encoding="utf-8")) if os.path.exists(INCOMING) else {}
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    day = datetime.now(JAKARTA).strftime("%Y-%m-%d")
+    feed = steam_feed()
+    if not feed:
+        raise SystemExit("Steam feed unavailable; data left unchanged")
     skinport = skinport_prices()
+    new = {n: {"price": feed[n]} for n in feed}
+    for n, v in manual.items():  # manual prices only fill gaps in the feed
+        if not n.startswith("_") and isinstance(v, dict) and n not in new:
+            new[n] = v
+    if feed and db.get("price_source") != "csgotrader":
+        db["price_source"] = "csgotrader"
+        db["source_changed"] = day  # marked on the value chart
 
     old = {p["item"]: p for p in db.get("prices", [])}
     item_history = db.setdefault("item_history", {})
     prices, fresh = [], 0
     for h in db["holdings"]:
         name, prev, got = h["item"], old.get(h["item"], {}), new.get(h["item"]) or {}
-        entry = {"item": name, "icon": got.get("icon") or prev.get("icon"),
+        entry = {"item": name, "icon": got.get("icon") or prev.get("icon") or db.get("icons", {}).get(name),
                  "skinport": skinport.get(name, prev.get("skinport"))}
         if got.get("price"):
             fresh += 1

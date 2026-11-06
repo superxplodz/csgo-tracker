@@ -258,7 +258,7 @@
     <!-- Overview -->
     <section class="page" id="tab-overview" role="tabpanel">
       <div class="hero">
-        <span class="eyebrow">Market value on Steam</span>
+        <span class="eyebrow">Value at Steam prices</span>
         <h1 class="hero-value" id="hValue">—</h1>
         <div><span class="badge" id="hBadge"></span></div>
       </div>
@@ -539,12 +539,14 @@
 
     const upd = db.updated_at ? new Date(db.updated_at).toLocaleString('en-GB', { timeZone: 'Asia/Jakarta', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' WIB' : '—';
     $('updated').textContent = 'Updated ' + upd;
-    $('footer').textContent = `Prices from the Steam Community Market. Last update ${upd}.`;
+    $('footer').textContent = db.price_source === 'csgotrader'
+      ? `Steam prices are the average sale price over the last 24 hours, via the CSGO Trader price feed. Last update ${upd}.`
+      : `Prices from the Steam Community Market. Last update ${upd}.`;
 
     if (CUR === 'IDR' && db.fx) $('footer').textContent += ` 1 USD = Rp${idr.format(db.fx.IDR)}.`;
     const app = el('a', 'Get the Android app', 'item'); app.href = 'download/cs2-portfolio.apk'; app.style.marginLeft = '8px';
     $('footer').append(' ', app);
-    redrawCharts = () => { drawTrend(hist); drawCats(pos); };
+    redrawCharts = () => { drawTrend(hist, db.source_changed); drawCats(pos); };
     if (!resizeHooked) { resizeHooked = true; let t; window.addEventListener('resize', () => { clearTimeout(t); t = setTimeout(() => { if (!$('tab-overview').hidden) redrawCharts(); }, 150); }); }
     drawMovers(pos);
     drawTargets(pos);
@@ -553,7 +555,7 @@
     drawInventory(db.inventory_check, icons);
   }
 
-  function drawTrend(hist) {
+  function drawTrend(hist, sourceChanged) {
     const box = $('trend'); box.replaceChildren();
     if (!hist.length) return;
     const rows = hist.map((r) => ({ day: r.day, t: Date.parse(r.day + 'T00:00:00Z'), value: +r.value, cost: +r.cost }));
@@ -576,6 +578,13 @@
     if (rows.length > 1) svg('path', { d: d(pv) + `L${pv.at(-1)[0]},${H - B}L${pv[0][0]},${H - B}Z`, fill: 'url(#fill)' }, s);
     svg('path', { d: d(pts('cost')), fill: 'none', class: 'l-cost', 'stroke-width': 1.5, 'stroke-dasharray': '5 4' }, s);
     svg('path', { d: d(pv), fill: 'none', class: 'l-value', 'stroke-width': 2.5, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, s);
+    if (sourceChanged) {
+      const tc = Date.parse(sourceChanged + 'T00:00:00Z');
+      if (tc > t0 && tc <= t1) {
+        svg('line', { x1: x(tc), x2: x(tc), y1: T, y2: H - B, class: 'l-cost', 'stroke-dasharray': '2 3', 'stroke-width': 1 }, s);
+        svg('text', { x: x(tc) - 4, y: T + 10, 'text-anchor': 'end' }, s).textContent = 'Price source changed';
+      }
+    }
     if (rows.length < 20) rows.forEach((r) => { svg('circle', { cx: x(r.t), cy: y(r.cost), r: 3, class: 'd-cost' }, s); svg('circle', { cx: x(r.t), cy: y(r.value), r: 4, class: 'd-value' }, s); });
     const tip = el('div', null, 'tip'); tip.hidden = true; box.appendChild(tip);
     const dot = svg('circle', { r: 6, class: 'd-value', style: 'stroke:var(--surface);stroke-width:3', visibility: 'hidden' }, s);
@@ -674,7 +683,7 @@
     $('sheetStats').replaceChildren(
       stat('You hold', nf0.format(r.qty), 'avg buy ' + usd(r.avg_buy)),
       stat('Value', usd(r.value), susd(r.pnl) + (r.pnl_pct == null ? '' : ' · ' + spct(r.pnl_pct)), tone(r.pnl)),
-      stat('Steam price', usd(r.price), 'you get ~' + usd(steamNet) + ' after fee'),
+      stat('Steam price', usd(r.price), '24h avg sale. You get ~' + usd(steamNet) + ' after fee'),
       stat('Skinport price', r.skinport ? usd(r.skinport) : '—', r.skinport ? 'you get ~' + usd(skinNet) + '. ' + best : 'appears after the next price update'));
     drawItemChart(r.series);
     $('targetInput').value = targets[r.item] ?? '';

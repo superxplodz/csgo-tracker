@@ -1,11 +1,14 @@
 name: Apply prices
 
-# The daily Claude task pushes plain Steam prices to incoming/prices.json.
-# This job merges them into the encrypted data.enc with the SITE_PASSWORD secret.
+# Daily price update: pulls Steam prices from the CSGO Trader feed, Skinport prices and the
+# USD->IDR rate, and merges them into the encrypted data.enc with the SITE_PASSWORD secret.
 on:
+  schedule:
+    - cron: "47 23 * * *"   # 06:47 WIB (the feed refreshes around 05:30 WIB)
+    - cron: "17 5 * * *"    # 12:17 WIB retry, in case the morning run failed
   push:
     branches: [main]
-    paths: ["incoming/prices.json"]
+    paths: ["incoming/prices.json", "scripts/apply_prices.py"]
   workflow_dispatch: {}
 
 permissions:
